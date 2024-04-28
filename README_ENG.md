@@ -1,4 +1,4 @@
-REST API Documentation for the "PhotoShare" Application
+    REST API Documentation for the "PhotoShare" Application
 
     Introduction
 The "PhotoShare" application allows users to upload, view, and comment on photos. The API is developed using the
