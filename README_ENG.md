@@ -1,3 +1,4 @@
+
 REST API Documentation for the "PhotoShare" Application
 
     Introduction
@@ -6,7 +7,15 @@ FastAPI framework, ensuring fast and efficient handling of HTTP requests.
 
     Authentication
 Authentication in the "PhotoShare" API is managed through tokens issued following successful user login. The process
-involves the following steps:
+
+    REST API Documentation for the "PhotoShare" Application
+
+    Introduction
+The "PhotoShare" application allows users to upload, view, and comment on photos. The API is developed using the
+FastAPI framework, ensuring fast and efficient handling of HTTP requests.
+
+    Authentication
+Authentication in the "PhotoShare" API is managed through tokens issued following successful user login.
 
     User Registration:
 POST /users/register
@@ -18,10 +27,14 @@ Fields: username, password
 Result: Authentication token, used to authorize subsequent requests.
     
     Photo Management
+
 The application provides the ability to upload new photos, view existing ones, and delete them. Each operation
 requires authentication.
 
-    Uploading a Photo:
+The application provides the ability to upload new photos, view existing ones, and delete them.
+Each operation requires authentication.
+
+Uploading a Photo:
 POST /photos
 The request must include multipart/form-data with the photo file.
 Result: URL of the uploaded photo and information about it.
@@ -45,6 +58,7 @@ Result: List of all comments on the photo.
 Deleting a Comment:
 DELETE /comments/{comment_id}
 Result: Confirmation of successful deletion or an error if the comment is not found.
+
 
     Conclusion
 The "PhotoShare" API uses REST standards to ensure simplicity and convenience in interactions.
