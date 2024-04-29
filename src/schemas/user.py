@@ -16,6 +16,23 @@ class UserResponse(BaseModel):
     username: str
     email: EmailStr
     avatar: str
+    count_photo: int
+    count_comment: int
+    count_rating: int
+    count_friendship: int
+    role: Role
+
+    model_config = ConfigDict(from_attributes = True)
+
+
+class UserResponseAll(BaseModel):
+    id: int = 1
+    username: str
+    avatar: str
+    count_photo: int
+    count_comment: int
+    count_rating: int
+    count_friendship: int
     role: Role
 
     model_config = ConfigDict(from_attributes = True)
