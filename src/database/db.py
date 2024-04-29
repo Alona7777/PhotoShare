@@ -1,7 +1,12 @@
 import contextlib
 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from src.conf.config import config
 
@@ -18,8 +23,9 @@ class DatabaseSessionManager:
         :doc-author: Trelent
         """
         self._engine: AsyncEngine | None = create_async_engine(url)
-        self._session_maker: async_sessionmaker = async_sessionmaker(autoflush=False, autocommit=False,
-                                                                     bind=self._engine)
+        self._session_maker: async_sessionmaker = async_sessionmaker(
+            autoflush=False, autocommit=False, bind=self._engine
+        )
 
     @contextlib.asynccontextmanager
     async def session(self):

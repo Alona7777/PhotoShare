@@ -8,8 +8,8 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class PhotoSchema(BaseModel):
     title: str = Field(min_length=3, max_length=50)
-    description: str = Field(min_length=3, max_length=50)
-    file_path: str
+    description: Optional[str] = None
+    # file_path: str
 
 
 class PhotoResponse(BaseModel):

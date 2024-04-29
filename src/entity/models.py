@@ -61,7 +61,7 @@ class Photo(Base) :
 
     id: Mapped[int] = mapped_column(primary_key = True)
     title: Mapped[str] = mapped_column(String, index = True)
-    description: Mapped[str] = mapped_column(String)
+    description: Mapped[str] = mapped_column(String, nullable = True)
     file_path: Mapped[str] = mapped_column(String)
     file_path_transform: Mapped[str] = mapped_column(String)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))

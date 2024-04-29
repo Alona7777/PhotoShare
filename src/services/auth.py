@@ -54,7 +54,9 @@ class Auth:
 
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
-    async def create_access_token(self, data: dict, expires_delta: Optional[float] = None):
+    async def create_access_token(
+        self, data: dict, expires_delta: Optional[float] = None
+    ):
         """
         The create_access_token function creates a new access token.
             Args:
@@ -73,11 +75,17 @@ class Auth:
             expire = datetime.now() + timedelta(seconds=expires_delta)
         else:
             expire = datetime.now() + timedelta(minutes=15)
-        to_encode.update({"iat": datetime.now(), "exp": expire, "scope": "access_token"})
-        encoded_access_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
+        to_encode.update(
+            {"iat": datetime.now(), "exp": expire, "scope": "access_token"}
+        )
+        encoded_access_token = jwt.encode(
+            to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM
+        )
         return encoded_access_token
 
-    async def create_refresh_token(self, data: dict, expires_delta: Optional[float] = None):
+    async def create_refresh_token(
+        self, data: dict, expires_delta: Optional[float] = None
+    ):
         """
         The create_refresh_token function creates a refresh token for the user.
             Args:
@@ -95,8 +103,12 @@ class Auth:
             expire = datetime.now() + timedelta(seconds=expires_delta)
         else:
             expire = datetime.now() + timedelta(days=7)
-        to_encode.update({"iat": datetime.now(), "exp": expire, "scope": "refresh_token"})
-        encoded_refresh_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
+        to_encode.update(
+            {"iat": datetime.now(), "exp": expire, "scope": "refresh_token"}
+        )
+        encoded_refresh_token = jwt.encode(
+            to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM
+        )
         return encoded_refresh_token
 
     async def decode_refresh_token(self, refresh_token: str):
@@ -112,13 +124,21 @@ class Auth:
         :doc-author: Naboka Artem
         """
         try:
-            payload = jwt.decode(refresh_token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            if payload['scope'] == 'refresh_token':
-                email = payload['sub']
+            payload = jwt.decode(
+                refresh_token, self.SECRET_KEY, algorithms=[self.ALGORITHM]
+            )
+            if payload["scope"] == "refresh_token":
+                email = payload["sub"]
                 return email
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid scope for token!')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid scope for token!",
+            )
         except JWTError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials!')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials!",
+            )
 
     async def get_current_user(
         self, token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
@@ -156,14 +176,14 @@ class Auth:
         user = await self.cache.get(user_hash)
         print(email)
 
-        if user is None :
+        if user is None:
             print("User from database")
             user = await repository_users.get_user_by_email(email, db)
-            if user is None :
+            if user is None:
                 raise credentials_exception
             await self.cache.set(user_hash, pickle.dumps(user))
             await self.cache.expire(user_hash, 300)
-        else :
+        else:
             print("User from cache")
             user = pickle.loads(user)
         return user
@@ -202,8 +222,10 @@ class Auth:
             return email
         except JWTError as e:
             print(e)
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                                detail="Invalid token for email verification!")
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Invalid token for email verification!",
+            )
 
 
 auth_service = Auth()

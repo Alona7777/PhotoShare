@@ -1,4 +1,4 @@
-    REST API Documentation for the "PhotoShare" Application
+# REST API Documentation for the "PhotoShare" Application
 
     Introduction
 The "PhotoShare" application allows users to upload, view, and comment on photos. The API is developed using the
@@ -46,7 +46,29 @@ Deleting a Comment:
 DELETE /comments/{comment_id}
 Result: Confirmation of successful deletion or an error if the comment is not found.
     
-    Conclusion
+# Conclusion
 The "PhotoShare" API uses REST standards to ensure simplicity and convenience in interactions.
 With the speed and reliability of FastAPI, "PhotoShare" serves as an effective tool for photo sharing and user
 communication.
+
+# Get started
+
+1) Clone repository:
+
+    ```https://github.com/Alona7777/Project-TEAM_1.git```
+
+2) Activate Poetry environment:
+
+    ```poetry shell```
+
+3) Install packages:
+
+    ```poetry install```
+
+4) Run docker compose:
+    ```docker compose up -d```
+
+5) Run migrations:
+    ```alembic upgrade heads```
+
+6) Run main.py
