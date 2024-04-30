@@ -4,11 +4,7 @@ import cloudinary
 import cloudinary.uploader
 
 from typing import List
-<<<<<<< Updated upstream
-from fastapi import APIRouter, Depends, UploadFile, File, status, HTTPException
-=======
 from fastapi import APIRouter, Depends, UploadFile, File, status, HTTPException, Form
->>>>>>> Stashed changes
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,10 +17,6 @@ from src.conf.config import config
 from src.conf import messages
 from src.repository import photos as repositories_photos
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 router = APIRouter(prefix="/photos", tags=["photos"])
 
 
@@ -35,21 +27,16 @@ async def get_photos(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ) -> List[Photo]:
-<<<<<<< Updated upstream
     """
-    The read_contacts function returns a list of contacts.
-
-    :param skip: int: Skip the first n contacts
-    :param limit: int: Limit the number of contacts returned
-    :param db: Session: Pass the database session to the repository layer
-    :param current_user: User: Get the current user from the database
-    :return: A list of contacts, which is the same type as the contact class
-    :doc-author: Trelent
+    The get_photos function returns a list of photos.
+    
+    :param skip: int: Skip the first n photos
+    :param limit: int: Limit the number of photos returned
+    :param db: AsyncSession: Pass the database connection to the function
+    :param current_user: User: Pass the current user to the get_photos function
+    :param : Get the id of the photo to be deleted
+    :return: A list of photos
     """
-    photos = await repositories_photos.get_photos(skip, limit, current_user, db)
-    return photos
-=======
-
     photos = await repositories_photos.get_photos(skip, limit, current_user, db)
     output_photos = []
     for photo in photos:
@@ -57,39 +44,31 @@ async def get_photos(
         output_photos.append({"id": photo_obj.id, "title": photo_obj.title, "description": photo_obj.description,
                              "file_path": photo_obj.file_path })
     return output_photos
->>>>>>> Stashed changes
 
 
 @router.post("/", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def create_photo(
-<<<<<<< Updated upstream
-    body: PhotoSchema,
-=======
     title:str = Form(),
     description: str | None = Form(),
 
->>>>>>> Stashed changes
     file: UploadFile = File(),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
-<<<<<<< Updated upstream
     """
     The create_photo function creates a new photo in the database.
-
-    :param body: PhotoSchema: Validate the request body
-    :param db: AsyncSession: Pass the database session to the repository
-    :param current_user: User: Get the user from the database
-    :param : Get the photo id from the url
-    :return: A photo object, which is defined in the models/photos
-    :doc-author: Alona Boholiepova
-    """
-    return await repositories_photos.create_photo(body, file, current_user, db)
-=======
+        It takes in a title, description, and file as arguments.
+        The function returns the newly created photo.
     
-
+    :param title:str: Get the title of the photo from the request body
+    :param description: str | None: Indicate that the description is optional
+    :param file: UploadFile: Get the file from the request
+    :param db: AsyncSession: Get a database session
+    :param current_user: User: Get the user who is currently logged in
+    :param : Get the current user
+    :return: A photo object
+    """
     return await repositories_photos.create_photo(title, description, current_user, db, file)
->>>>>>> Stashed changes
 
 
 @router.put("/{photo_id}/{description}", response_model=PhotoResponse)
@@ -99,24 +78,16 @@ async def update_photo_description(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
-<<<<<<< Updated upstream
     """
     The update_photo_description function updates the description of a photo.
-        Args:
-            description (str): The new description for the photo.
-            photo_id (int): The id of the photo to update.
-
-    :param description: str: Get the description of the photo
-    :param photo_id: int: Get the photo id from the url
+    
+    :param description: str: Get the description from the request body
+    :param photo_id: int: Get the photo id
     :param db: AsyncSession: Get the database session
-    :param current_user: User: Get the current user
-    :param : Get the photo id from the url
-    :return: The updated photo
-    :doc-author: Alona Boholiepova
+    :param current_user: User: Get the user who is making the request
+    :param : Get the photo id
+    :return: A photo object
     """
-=======
-   
->>>>>>> Stashed changes
     photo = await repositories_photos.update_photo_description(
         photo_id, description, current_user, db
     )
@@ -133,7 +104,17 @@ async def remove_photo(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
-
+    """
+    The remove_photo function is used to remove a photo from the database.
+        The function takes in an integer representing the id of the photo to be removed,
+        and returns a Photo object containing information about that photo.
+    
+    :param photo_id: int: Get the photo id from the url
+    :param db: AsyncSession: Get the database session
+    :param current_user: User: Get the user that is currently logged in
+    :param : Get the photo id from the url
+    :return: The removed photo
+    """
     photo = await repositories_photos.remove_photo(photo_id, current_user, db)
     if photo is None:
         raise HTTPException(
