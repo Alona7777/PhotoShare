@@ -1,0 +1,77 @@
+<!--
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Verify Email</title>
+</head>
+<body>
+<p>Hi {{username}},</p>
+<p>Thank you for signing up for our service.</p>
+<p>Please click the following link to verify your email address:</p>
+<p>
+    <a href="{{host}}api/auth/verified_email/{{token}}">
+        Verification
+    </a>
+</p>
+<p>If you did not sign up for our service, please ignore this email.</p>
+<p>Thanks,</p>
+<p>The Our Team</p>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Email Verification</h2>
+        <p>Hello {{username}},</p>
+        <p>Please click the button below to verify your email address:</p>
+        <a class="btn" href="{{host}}api/auth/verified_email/{{token}}">Verify Email</a>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+        <p>Best regards,<br>Your Application Team</p>
+    </div>
+</body>
+</html>
