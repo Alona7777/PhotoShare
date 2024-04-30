@@ -1,0 +1,48 @@
+Index: src/schemas/photo.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from datetime import datetime, date\r\nfrom typing import Optional\r\n\r\nfrom pydantic import BaseModel, EmailStr, Field, ConfigDict\r\n\r\n# from src.schemas.user import UserResponse\r\n\r\n\r\nclass PhotoSchema(BaseModel):\r\n    title: str = Field(min_length=3, max_length=50)\r\n    description: Optional[str] = None\r\n    # file_path: str\r\n\r\n\r\nclass PhotoResponse(BaseModel):\r\n    id: int = 1\r\n    title: str\r\n    description: str\r\n    file_path: str\r\n\r\n    model_config = ConfigDict(from_attributes = True)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/schemas/photo.py b/src/schemas/photo.py
+--- a/src/schemas/photo.py	(revision 21c69babf4336c9cac215bda1c0276ba90239145)
++++ b/src/schemas/photo.py	(date 1714492774120)
+@@ -1,8 +1,10 @@
++import enum
+ from datetime import datetime, date
+-from typing import Optional
++from typing import Optional, List
+ 
+ from pydantic import BaseModel, EmailStr, Field, ConfigDict
+ 
++
+ # from src.schemas.user import UserResponse
+ 
+ 
+@@ -18,4 +20,24 @@
+     description: str
+     file_path: str
+ 
+-    model_config = ConfigDict(from_attributes = True)
++    model_config = ConfigDict(from_attributes=True)
++
++
++class SortDirection(enum.Enum):
++    asc = 'asc'
++    desc = 'desc'
++
++
++class CommentModel(BaseModel):
++    comment: str = Field(max_length=1000)
++
++
++class CommentResponse(CommentModel):
++    id: int
++    comment: str = Field(max_length=1000)
++    user_id: int
++    created_at: datetime
++    updated_at: datetime
++
++    class Config:
++        orm_mode = True

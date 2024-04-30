@@ -3,11 +3,16 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
+# from src.schemas.user import UserResponse
 
 
 class PhotoSchema(BaseModel):
     title: str = Field(min_length=3, max_length=50)
-    description: str | None = ""
+<<<<<<< Updated upstream
+    description: Optional[str] = None
+=======
+    description:str | None = ""
+>>>>>>> Stashed changes
     # file_path: str
 
 
