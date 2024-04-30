@@ -30,7 +30,6 @@ async def get_photo(email: str, db: AsyncSession = Depends(get_db)):
     :param email: str: Pass in the email of the user we want to get from our database
     :param db: AsyncSession: Connect to the database
     :return: A user object if the email exists in the database
-    :doc-author: Naboka Artem
     """
     filter_user = select(User).filter_by(email=email)
     user = await db.execute(filter_user)
@@ -49,7 +48,6 @@ async def get_photos(
     :param user: User: Get the user from the database
     :param db: AsyncSession: Pass the database session to the function
     :return: A list of photo objects
-    :doc-author: Alona Boholiepova
     """
     return (
         db.query(Photo).filter(Photo.user_id == user.id).offset(skip).limit(limit).all()
@@ -72,7 +70,6 @@ async def create_photo(
     :param db: AsyncSession: Get the database session
     :param file: UploadFile: Receive the file from the request
     :return: A photo object
-    :doc-author: Trelent
     """
     description = None
     if body.description:
@@ -106,7 +103,6 @@ async def update_photo_description(
     :param user: User: Ensure that the user is logged in and has access to the photo
     :param db: AsyncSession: Pass the database session to the function
     :return: The photo object after it has been updated
-    :doc-author: Alona Boholiepova
     """
     photo = db.query(Photo).filter_by(id=photo_id, user_id=user.id).one_or_none()
     if photo:
@@ -128,7 +124,6 @@ async def remove_photo(
     :param user: User: Get the user object from the database
     :param db:AsyncSession: Pass in the database session
     :return: The deleted photo or none if no photo was found
-    :doc-author: Alona Boholiepova
     """
     photo = db.query(Photo).filter_by(id=photo_id, user_id=user.id).one_or_none()
     if photo:
