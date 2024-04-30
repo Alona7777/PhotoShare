@@ -8,7 +8,7 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class PhotoSchema(BaseModel):
     title: str = Field(min_length=3, max_length=50)
-    description: Optional[str] = None
+    description:str | None = ""
     # file_path: str
 
 
