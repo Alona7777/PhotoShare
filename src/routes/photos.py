@@ -36,7 +36,6 @@ async def get_photos(
     :param db: Session: Pass the database session to the repository layer
     :param current_user: User: Get the current user from the database
     :return: A list of contacts, which is the same type as the contact class
-    :doc-author: Trelent
     """
     photos = await repositories_photos.get_photos(skip, limit, current_user, db)
     return photos
@@ -57,7 +56,6 @@ async def create_photo(
     :param current_user: User: Get the user from the database
     :param : Get the photo id from the url
     :return: A photo object, which is defined in the models/photos
-    :doc-author: Alona Boholiepova
     """
     return await repositories_photos.create_photo(body, file, current_user, db)
 
@@ -81,7 +79,6 @@ async def update_photo_description(
     :param current_user: User: Get the current user
     :param : Get the photo id from the url
     :return: The updated photo
-    :doc-author: Alona Boholiepova
     """
     photo = await repositories_photos.update_photo_description(
         photo_id, description, current_user, db

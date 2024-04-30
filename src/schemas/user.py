@@ -15,11 +15,16 @@ class UserResponse(BaseModel):
     id: int = 1
     username: str
     email: EmailStr
-    avatar: str
-    count_photo: int
-    count_comment: int
-    count_rating: int
-    count_friendship: int
+    avatar: str | None
+    
+    # count_photo: int | None
+    count_photo: Optional[int] = None
+    # count_comment: int | None
+    count_comment: Optional[int] = None
+    # count_rating: int | None
+    count_rating: Optional[int] = None
+    # count_friendship: int | None
+    count_friendship: Optional[int] = None
     role: Role
 
     model_config = ConfigDict(from_attributes = True)
