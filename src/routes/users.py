@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
 from src.entity.models import User
-from src.schemas.user import UserResponse
+from src.schemas import user as schemas_user
 from src.services.auth import auth_service
 from src.conf.config import config
 from src.repository import users as repositories_users
@@ -26,7 +26,7 @@ cloudinary.config(
 
 @router.get(
     "/me",
-    response_model = UserResponse,
+    response_model = schemas_user.UserResponse,
     dependencies = [Depends(RateLimiter(times = 1, seconds = 20))],
 )
 async def get_current_user(user: User = Depends(auth_service.get_current_user)):
@@ -42,9 +42,28 @@ async def get_current_user(user: User = Depends(auth_service.get_current_user)):
     return user
 
 
+@router.get(
+    "/user/{id}",
+    response_model = schemas_user.UserResponseAll,
+    dependencies = [Depends(RateLimiter(times = 1, seconds = 20))],
+)
+async def get_user_info(user: User = Depends(auth_service.get_user_info)) -> User:
+    """
+    The get_current_user function is a dependency that will be injected into the
+        get_current_user endpoint. It uses the auth_service to retrieve the current user,
+        and returns it if found.
+
+    :param id:
+    :param user: User: Get the current user
+    :return: The current user object, which is the user model
+    :doc-author: Naboka Artem
+    """
+    return user
+
+
 @router.patch(
     "/avatar",
-    response_model = UserResponse,
+    response_model = schemas_user.UserResponse,
     dependencies = [Depends(RateLimiter(times = 1, seconds = 20))],
 )
 async def get_current_user(
