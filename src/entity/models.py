@@ -1,10 +1,10 @@
 import enum
 from datetime import date, datetime
-
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Date, Integer, ForeignKey, DateTime, func, Enum, Boolean, Column
 from sqlalchemy.orm import DeclarativeBase
-
+from src.conf.config import config
 
 class Base(DeclarativeBase) :
     pass
@@ -63,7 +63,7 @@ class Photo(Base) :
     title: Mapped[str] = mapped_column(String, index = True)
     description: Mapped[str] = mapped_column(String, nullable = True)
     file_path: Mapped[str] = mapped_column(String)
-    file_path_transform: Mapped[str] = mapped_column(String)
+    file_path_transform: Mapped[str] = mapped_column(String, nullable=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
     created_at: Mapped[date] = mapped_column('created_at', DateTime, default = func.now(), nullable = False)
 
@@ -117,3 +117,6 @@ class PhotoTag(Base) :
 
     photo_id: Mapped[int] = Column(Integer, ForeignKey("photos.id"), primary_key = True)
     tag_id: Mapped[int] = Column(Integer, ForeignKey("tags.id"), primary_key = True)
+
+def create_mannually_tables():
+    Base.metadata.create_all(create_engine(config.DB_URL))

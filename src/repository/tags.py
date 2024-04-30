@@ -1,6 +1,7 @@
 from typing import List, Optional, Type
 from sqlalchemy.orm import Session
 from src.entity.models import Tag
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_tag(name, db: Session) -> Tag:
@@ -53,3 +54,11 @@ The get_tag_by_name function returns a Tag object from the database, given its n
 :doc-author: Trelent
 """
     return db.query(Tag).filter_by(name=name).first()
+
+async def create_or_get_tag(tag_name: str, db: AsyncSession) -> Tag:
+    
+    existing_tag = await get_tag_by_name(tag_name, db)
+    if existing_tag:
+        return existing_tag
+    else:
+        return await create_tag(tag_name, db)
