@@ -83,6 +83,8 @@ class Comment(Base) :
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'))
     photo_id: Mapped[int] = mapped_column(Integer, ForeignKey('photos.id'))
     created_at: Mapped[date] = mapped_column('created_at', DateTime, default = func.now(), nullable = False)
+    updated_at: Mapped[date] = mapped_column('updated_at', DateTime, default = func.now(), nullable = False,
+                                             onupdate = func.now())
 
     user: Mapped["User"] = relationship("User", back_populates = "user_comments")
     photo_commented: Mapped["Photo"] = relationship("Photo", back_populates = "commented_photos")
@@ -110,8 +112,8 @@ class Tag(Base) :
     # photos_relation: Mapped[relationship] = relationship("Photo", secondary = "photo_tags", backref = "tags")
 
 
-class PhotoTag(Base):
+class PhotoTag(Base) :
     __tablename__ = "photo_tags"
 
-    photo_id: Mapped[int] = Column(Integer, ForeignKey("photos.id"), primary_key=True)
-    tag_id: Mapped[int] = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+    photo_id: Mapped[int] = Column(Integer, ForeignKey("photos.id"), primary_key = True)
+    tag_id: Mapped[int] = Column(Integer, ForeignKey("tags.id"), primary_key = True)
