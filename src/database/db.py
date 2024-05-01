@@ -64,4 +64,5 @@ async def get_db():
     :doc-author: Naboka Artem
     """
     async with sessionmanager.session() as session:
-        return session
+        # return session
+        yield session
