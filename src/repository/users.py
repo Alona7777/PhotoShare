@@ -55,6 +55,10 @@ async def create_user(body: UserSchema, db: AsyncSession = Depends(get_db)):
         print(err)
 
     new_user = User(**body.model_dump(), avatar=avatar)
+    new_user.count_photo = 0
+    new_user.count_comment = 0
+    new_user.count_rating = 0
+    new_user.count_friendship = 0
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
