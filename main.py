@@ -3,6 +3,7 @@ import re
 from ipaddress import ip_address
 from typing import Callable
 import uvicorn
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi_limiter import FastAPILimiter
@@ -14,16 +15,30 @@ from src.database.db import get_db
 from src.routes import auth, users, photos, transformation
 from src.conf.config import config
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    r = await redis.Redis(
+        host=config.REDIS_DOMAIN,
+        port=config.REDIS_PORT,
+        db=0,
+        password=config.REDIS_PASSWORD,
+    )
+    await FastAPILimiter.init(r)
+    yield
+
+
+app = FastAPI(lifespan=lifespan, title="PhotoShare", description="API to manage photos", version="1.0.0",
+              swagger_ui_parameters={"operationsSorter": "method"})
 
 origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = origins,
-    allow_credentials = True,
-    allow_methods = ["*"],
-    allow_headers = ["*"],
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # banned_ips = [
@@ -39,7 +54,7 @@ app.add_middleware(
 #     response = await call_next(request)
 #     return response
 
-ALLOWED_IPS = [ip_address("127.0.0.1"),]
+ALLOWED_IPS = [ip_address("127.0.0.1"), ]
 
 
 @app.middleware("http")
@@ -88,34 +103,36 @@ async def user_agent_ban_middleware(request: Request, call_next: Callable):
     return response
 
 
-app.include_router(auth.router, prefix = "/api")
-app.include_router(users.router, prefix = "/api")
-app.include_router(photos.router, prefix = "/api")
-app.include_router(transformation.router, prefix = "/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(photos.router, prefix="/api")
+app.include_router(transformation.router, prefix="/api")
+
+
 # app.include_router(birthday.router, prefix = "/api")
 
-
-@app.on_event("startup")
-async def startup() :
-    """
-    The startup function is called when the application starts up.
-    It's a good place to initialize things that are needed by your app,
-    like database connections or caches.
-
-    :return: A list of functions to run after startup
-    :doc-author: Naboka Artem
-    """
-    r = await redis.Redis(
-        host = config.REDIS_DOMAIN,
-        port = config.REDIS_PORT,
-        db = 0,
-        password = config.REDIS_PASSWORD,
-    )
-    await FastAPILimiter.init(r)
+# depricated, use lifespan instead
+# @app.on_event("startup")
+# async def startup():
+#     """
+#     The startup function is called when the application starts up.
+#     It's a good place to initialize things that are needed by your app,
+#     like database connections or caches.
+#
+#     :return: A list of functions to run after startup
+#     :doc-author: Naboka Artem
+#     """
+#     r = await redis.Redis(
+#         host=config.REDIS_DOMAIN,
+#         port=config.REDIS_PORT,
+#         db=0,
+#         password=config.REDIS_PASSWORD,
+#     )
+#     await FastAPILimiter.init(r)
 
 
 @app.get("/")
-def index() :
+def index():
     """
     The index function responds to a request for /api/v2/contacts
         with the complete lists of contacts
@@ -123,11 +140,11 @@ def index() :
     :return: A dictionary with the key &quot;message&quot; and value &quot;contacts application&quot;
     :doc-author: Naboka Artem
     """
-    return {"message" : "Contacts Application"}
+    return {"message": "Contacts Application"}
 
 
 @app.get("/api/healthchecker")
-async def healthchecker(db: AsyncSession = Depends(get_db)) :
+async def healthchecker(db: AsyncSession = Depends(get_db)):
     """
     The healthchecker function is used to check the health of the database.
     It does this by making a simple query to the database and checking if it returns any results.
@@ -137,19 +154,19 @@ async def healthchecker(db: AsyncSession = Depends(get_db)) :
     :return: A dictionary with a message
     :doc-author: Naboka Artem
     """
-    try :
+    try:
         # Make request
         result = await db.execute(text("SELECT 1"))
         result = result.fetchone()
-        if result is None :
-            raise HTTPException(status_code = 500, detail = "Database is not configured correctly")
-        return {"message" : "Welcome to FastAPI!"}
-    except Exception as e :
+        if result is None:
+            raise HTTPException(status_code=500, detail="Database is not configured correctly")
+        return {"message": "Welcome to FastAPI!"}
+    except Exception as e:
         print(e)
-        raise HTTPException(status_code = 500, detail = "Error connecting to the database")
+        raise HTTPException(status_code=500, detail="Error connecting to the database")
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     uvicorn.run(
-        "main:app", host = "127.0.0.1", port = 8000, reload = True
+        "main:app", host="127.0.0.1", port=8000, reload=True
     )
