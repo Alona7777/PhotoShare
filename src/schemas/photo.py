@@ -8,7 +8,7 @@ from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class PhotoSchema(BaseModel):
     title: str = Field(min_length=3, max_length=50)
-    description:str | None = ""
+    description: str | None = ""
     # file_path: str
 
 
@@ -18,4 +18,4 @@ class PhotoResponse(BaseModel):
     description: str
     file_path: str
 
-    model_config = ConfigDict(from_attributes = True)
+    model_config = ConfigDict(from_attributes=True)

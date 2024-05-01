@@ -18,7 +18,9 @@ class RoleAccess:
         """
         self.allowed_roles = allowed_roles
 
-    async def __call__(self, request: Request, user: User = Depends(auth_service.get_current_user)):
+    async def __call__(
+        self, request: Request, user: User = Depends(auth_service.get_current_user)
+    ):
         """
         The __call__ function is a decorator that takes in the request and user,
         and returns the response. The user is passed to this function by Depends(auth_service.get_current_user).
@@ -33,6 +35,5 @@ class RoleAccess:
         """
         if user.role not in self.allowed_roles:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="FORBIDDEN"
+                status_code=status.HTTP_403_FORBIDDEN, detail="FORBIDDEN"
             )

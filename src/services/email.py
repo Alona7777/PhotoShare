@@ -19,7 +19,7 @@ conf = ConnectionConfig(
     MAIL_SSL_TLS=True,
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
-    TEMPLATE_FOLDER=Path(__file__).parent / 'templates',
+    TEMPLATE_FOLDER=Path(__file__).parent / "templates",
 )
 
 
@@ -42,8 +42,12 @@ async def send_email(email: EmailStr, username: str, host: str):
         message = MessageSchema(
             subject="Verify your email !",
             recipients=[email],
-            template_body={"host": host, "username": username, "token": token_verification},
-            subtype=MessageType.html
+            template_body={
+                "host": host,
+                "username": username,
+                "token": token_verification,
+            },
+            subtype=MessageType.html,
         )
 
         fm = FastMail(conf)
@@ -67,8 +71,12 @@ async def send_email_reset_password(email: EmailStr, username: str, host: str):
         message = MessageSchema(
             subject="Reset password !",
             recipients=[email],
-            template_body={"host": host, "username": username, "token": token_reset_password},
-            subtype=MessageType.html
+            template_body={
+                "host": host,
+                "username": username,
+                "token": token_reset_password,
+            },
+            subtype=MessageType.html,
         )
 
         fm = FastMail(conf)
@@ -96,7 +104,7 @@ async def send_message_password(email: EmailStr, username: str, host: str):
             subject="Reset the password successfully !",
             recipients=[email],
             template_body={"host": host, "username": username},
-            subtype=MessageType.html
+            subtype=MessageType.html,
         )
 
         fm = FastMail(conf)
@@ -105,7 +113,9 @@ async def send_message_password(email: EmailStr, username: str, host: str):
         print(err)
 
 
-async def send_random_password(email: EmailStr, username: str, host: str, password: str):
+async def send_random_password(
+    email: EmailStr, username: str, host: str, password: str
+):
     """
     The send_random_password function sends an email to the user with a new random password.
         Args:
@@ -126,7 +136,7 @@ async def send_random_password(email: EmailStr, username: str, host: str, passwo
             subject="New password successfully !",
             recipients=[email],
             template_body={"host": host, "username": username, "password": password},
-            subtype=MessageType.html
+            subtype=MessageType.html,
         )
 
         fm = FastMail(conf)

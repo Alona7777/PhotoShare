@@ -23,7 +23,9 @@ cloudinary.config(
 )
 
 
-async def get_photo_by_ID(photo_id: int, user: User, db: AsyncSession = Depends(get_db)):
+async def get_photo_by_ID(
+    photo_id: int, user: User, db: AsyncSession = Depends(get_db)
+):
     """
     Get a user by email.
 
@@ -31,7 +33,7 @@ async def get_photo_by_ID(photo_id: int, user: User, db: AsyncSession = Depends(
     :param db: AsyncSession: The database session
     :return: User: The user object
     """
-    filter_photo = select(Photo).filter_by(id =photo_id, user_id=user.id)
+    filter_photo = select(Photo).filter_by(id=photo_id, user_id=user.id)
     photo_expression = await db.execute(filter_photo)
     photo = photo_expression.scalar_one_or_none()
     return photo
@@ -49,7 +51,7 @@ async def get_photos(
     :param db: AsyncSession: The database session
     :return: List[Photo]: A list of photo objects
     """
-    expression = select(Photo).filter_by(user_id = user.id).offset(skip).limit(limit)
+    expression = select(Photo).filter_by(user_id=user.id).offset(skip).limit(limit)
     photos = await db.execute(expression)
     photos = photos.all()
     return photos
@@ -62,16 +64,14 @@ async def create_photo(
     db: AsyncSession = Depends(get_db),
     file: UploadFile = File(),
 ) -> Photo:
-    
-   
+
     letters = string.ascii_lowercase
-    random_name = ''.join(random.choice(letters) for _ in range(20))
+    random_name = "".join(random.choice(letters) for _ in range(20))
     public_id = f"PhotoShare/{user.email}/{random_name}"
     res_photo = cloudinary.uploader.upload(
-        file.file,
-        public_id=public_id,
-        overwrite=True)
-    
+        file.file, public_id=public_id, overwrite=True
+    )
+
     res_url = cloudinary.CloudinaryImage(public_id).build_url(
         width=300, height=300, crop="fill", version=res_photo.get("version")
     )
@@ -87,11 +87,11 @@ async def create_photo(
 async def update_photo_description(
     photo_id: int, description: str, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
-   
+
     photo_expression = select(Photo).filter_by(id=photo_id, user_id=user.id)
     photos = await db.execute(photo_expression)
     photo = photos.scalar_one_or_none()
-    
+
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
     photo.description = description
@@ -114,7 +114,7 @@ async def remove_photo(
     photo_expression = select(Photo).filter_by(id=photo_id, user_id=user.id)
     photos = await db.execute(photo_expression)
     photo = photos.scalar_one_or_none()
-    
+
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
     await db.delete(photo)

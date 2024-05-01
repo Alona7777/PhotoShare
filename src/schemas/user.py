@@ -16,7 +16,7 @@ class UserResponse(BaseModel):
     username: str
     email: EmailStr
     avatar: str | None
-    
+
     # count_photo: int | None
     count_photo: Optional[int] = None
     # count_comment: int | None
@@ -27,7 +27,7 @@ class UserResponse(BaseModel):
     count_friendship: Optional[int] = None
     role: Role
 
-    model_config = ConfigDict(from_attributes = True)
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserResponseAll(BaseModel):
@@ -40,7 +40,7 @@ class UserResponseAll(BaseModel):
     count_friendship: int
     role: Role
 
-    model_config = ConfigDict(from_attributes = True)
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TokenSchema(BaseModel):

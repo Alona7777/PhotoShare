@@ -14,7 +14,7 @@ from src.services.auth import auth_service
 from src.conf.config import config
 from src.repository import users as repositories_users
 
-router = APIRouter(prefix = "/users", tags = ["users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 cloudinary.config(
     cloud_name=config.CLD_NAME,
@@ -26,8 +26,8 @@ cloudinary.config(
 
 @router.get(
     "/me",
-    response_model = schemas_user.UserResponse,
-    dependencies = [Depends(RateLimiter(times = 1, seconds = 20))],
+    response_model=schemas_user.UserResponse,
+    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
 )
 async def get_current_user(user: User = Depends(auth_service.get_current_user)):
     """
@@ -44,8 +44,8 @@ async def get_current_user(user: User = Depends(auth_service.get_current_user)):
 
 @router.get(
     "/user/{id}",
-    response_model = schemas_user.UserResponseAll,
-    dependencies = [Depends(RateLimiter(times = 1, seconds = 20))],
+    response_model=schemas_user.UserResponseAll,
+    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
 )
 async def get_user_info(user: User = Depends(auth_service.get_user_info)) -> User:
     """
@@ -63,13 +63,13 @@ async def get_user_info(user: User = Depends(auth_service.get_user_info)) -> Use
 
 @router.patch(
     "/avatar",
-    response_model = schemas_user.UserResponse,
-    dependencies = [Depends(RateLimiter(times = 1, seconds = 20))],
+    response_model=schemas_user.UserResponse,
+    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
 )
 async def get_current_user(
-        file: UploadFile = File(),
-        user: User = Depends(auth_service.get_current_user),
-        db: AsyncSession = Depends(get_db),
+    file: UploadFile = File(),
+    user: User = Depends(auth_service.get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     The get_current_user function is a dependency that returns the current user.
@@ -84,10 +84,10 @@ async def get_current_user(
     :doc-author: Naboka Artem
     """
     public_id = f"Web19_fastapi/{user.email}"
-    res_photo = cloudinary.uploader.upload(file.file, public_id = public_id, owerite = True)
+    res_photo = cloudinary.uploader.upload(file.file, public_id=public_id, owerite=True)
     # print(res_photo)
     res_url = cloudinary.CloudinaryImage(public_id).build_url(
-        width = 300, height = 300, crop = "fill", version = res_photo.get("version")
+        width=300, height=300, crop="fill", version=res_photo.get("version")
     )
     user = await repositories_users.update_avatar_url(user.email, res_url, db)
     auth_service.cache.set(user.email, pickle.dumps(user))
