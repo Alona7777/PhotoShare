@@ -23,7 +23,7 @@ cloudinary.config(
 )
 
 
-async def get_photo(email: str, db: AsyncSession = Depends(get_db)):
+async def get_photo_by_ID(photo_id: int, user: User, db: AsyncSession = Depends(get_db)):
     """
     Get a user by email.
 
@@ -31,10 +31,10 @@ async def get_photo(email: str, db: AsyncSession = Depends(get_db)):
     :param db: AsyncSession: The database session
     :return: User: The user object
     """
-    filter_user = select(User).filter_by(email=email)
-    user = await db.execute(filter_user)
-    user = user.scalar_one_or_none()
-    return user
+    filter_photo = select(Photo).filter_by(id =photo_id, user_id=user.id)
+    photo_expression = await db.execute(filter_photo)
+    photo = photo_expression.scalar_one_or_none()
+    return photo
 
 
 async def get_photos(
@@ -63,16 +63,7 @@ async def create_photo(
     file: UploadFile = File(),
 ) -> Photo:
     
-    """
-    Create a new photo in the database.
-
-    :param body: PhotoSchema: The data from the request body
-    :param user: User: The user creating the photo
-    :param db: AsyncSession: The database session
-    :param file: UploadFile: The file to upload
-    :return: Photo: The created photo object
-    """
-    print(user)
+   
     letters = string.ascii_lowercase
     random_name = ''.join(random.choice(letters) for _ in range(20))
     public_id = f"PhotoShare/{user.email}/{random_name}"
@@ -131,17 +122,11 @@ async def remove_photo(
     return photo
 
 
-async def get_photo_by_id(
+"""async def get_photo_by_id(
     photo_id: int, db: AsyncSession = Depends(get_db)
 ) -> Photo:
-    """
-    Get a photo by its id.
-
-    :param photo_id: int: The id of the photo to get
-    :param db: AsyncSession: The database session
-    :return: Photo: The photo object
-    """
+  
     photo = select(Photo).filter(Photo.id == photo_id)
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
-    return photo
+    return photo"""
