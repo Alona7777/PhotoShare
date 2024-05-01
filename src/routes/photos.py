@@ -108,3 +108,18 @@ async def remove_photo(
             status_code = status.HTTP_404_NOT_FOUND, detail = messages.NOT_FOUND
         )
     return photo
+
+@router.get("/{photo_id}", response_model = PhotoResponse)
+async def get_photo_by_photoID(
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
+) -> List[Photo] :
+    photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
+    if photo is None :
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND, detail = messages.NOT_FOUND
+        )
+    return {"id" : photo.id, "title" : photo.title, "description" : photo.description,
+                              "file_path" : photo.file_path}
+    
