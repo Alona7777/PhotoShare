@@ -22,19 +22,38 @@ cloudinary.config(
     secure=True,
 )
 
-async def create_crop_transformation(original_photo, body, user):
-   letters = string.ascii_lowercase
-   random_name = ''.join(random.choice(letters) for _ in range(20))
-   public_id = f"PhotoShare/{user.email}/{random_name}"
-   res_photo = cloudinary.uploader.upload(
-        file=original_photo.file_path,
-        public_id=public_id,
-        overwrite=True)
-   print(res_photo)
-   transform = cloudinary.CloudinaryImage(res_photo.get("url")).build_url(transformation=[
-  {'aspect_ratio': f"{body.aspect_ratio}", 'width': body.width, 'crop': body.crop},
-  {'radius': "max"},
-  {'fetch_format': "auto"}
-  ], version=res_photo.get("version"))
-   print(body)
-   print(transform)
+
+async def save_transformation(trans_url: str, photo: Photo, db: AsyncSession):
+    """Save the transformation to the database."""
+    photo.file_path_transform = trans_url
+    await db.commit()
+    await db.refresh(photo)
+    return photo
+
+
+async def create_crop_transformation(original_photo, body, db):
+    list_base_url = original_photo.file_path.split('/')
+    public_id = f"PhotoShare/{list_base_url[-2]}/{list_base_url[-1]}"
+    print(public_id)
+    size_param = {}
+    trans_actions = [
+        {'fetch_format': "auto"}
+    ]
+    if body.width > 0:
+        size_param['width'] = body.width
+    if body.crop != '':
+        size_param['crop'] = body.crop
+    if body.aspect_ratio > 1:
+        size_param['aspect_ratio'] = body.aspect_ratio
+    if size_param:
+        trans_actions.append(size_param)
+    if body.is_rounded:
+        trans_actions.append({'radius': "max"})
+    if body.angle != 0:
+        trans_actions.append({'angle': 20})
+    if body.effect != '':
+        trans_actions.append({'effect': body.effect})
+    transform = cloudinary.CloudinaryImage(public_id).build_url(transformation=trans_actions)
+    trans_photo = await save_transformation(transform, original_photo, db)
+    return {"id": trans_photo.id, "title": trans_photo.title, "description": trans_photo.description,
+            "file_path_transform": trans_photo.file_path_transform}
