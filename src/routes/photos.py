@@ -43,7 +43,6 @@ async def get_photos(
 async def create_photo(
         title: str = Form(),
         description: str | None = Form(),
-
         file: UploadFile = File(),
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
@@ -54,7 +53,6 @@ async def create_photo(
 @router.put("/{photo_id}/{description}", response_model=PhotoResponse,
             dependencies=[Depends(access_to_route_all)])
 async def update_photo_description(
-
         description: str,
         photo_id: int,
         db: AsyncSession = Depends(get_db),
