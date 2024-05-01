@@ -31,15 +31,6 @@ async def get_photos(
     current_user: User = Depends(auth_service.get_current_user),
 ) -> List[Photo]:
 
-
-@router.get("/all/", response_model = List[PhotoResponse])
-async def get_photos(
-        skip: int = 0,
-        limit: int = 100,
-        db: AsyncSession = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user),
-) -> List[Photo] :
-
     photos = await repositories_photos.get_photos(skip, limit, current_user, db)
     output_photos = []
     for photo in photos :
@@ -53,14 +44,6 @@ async def get_photos(
 async def create_photo(
         title: str = Form(),
         description: str | None = Form(),
-
-
-    file: UploadFile = File(),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
-) -> Photo:
-
-
         file: UploadFile = File(),
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
@@ -72,13 +55,6 @@ async def create_photo(
 @router.put("/{photo_id}/{description}", response_model = PhotoResponse,
             dependencies = [Depends(access_to_route_all)])
 async def update_photo_description(
-
-    description: str,
-    photo_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
-) -> Photo:
-
         description: str,
         photo_id: int,
         db: AsyncSession = Depends(get_db),
