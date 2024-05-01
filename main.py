@@ -19,24 +19,22 @@ from src.conf.config import config
 
 # @app.on_event("startup")
 @asynccontextmanager
-async def lifespan():
-    """
-    The startup function is called when the application starts up.
-    It's a good place to initialize things that are needed by your app,
-    like database connections or caches.
-
-    :return: A list of functions to run after startup
-    :doc-author: Naboka Artem
-    """
-    r = await redis.Redis(
-        host=config.REDIS_DOMAIN,
-        port=config.REDIS_PORT,
-        db=0,
-        password=config.REDIS_PASSWORD,
-    )
-    await FastAPILimiter.init(r)
-
-    yield
+async def lifespan(app: FastAPI):
+    try:
+        r = await redis.Redis(
+            host=config.REDIS_DOMAIN,
+            port=config.REDIS_PORT,
+            db=0,
+            password=config.REDIS_PASSWORD,
+        )
+        await FastAPILimiter.init(r)
+        yield
+    except redis.RedisError as e:
+        print(f"Failed to connect to Redis: {e}")
+        yield
+    except Exception as e:
+        print(f"An unexpected error occurred during startup: {e}")
+        yield
 
 app = FastAPI(lifespan=lifespan)
 
