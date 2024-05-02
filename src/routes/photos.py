@@ -1,4 +1,5 @@
 import pickle
+import qrcode
 
 import cloudinary
 import cloudinary.uploader
@@ -11,12 +12,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db import get_db
 from src.entity.models import User, Photo, Role
 from src.schemas.user import UserResponse
-from src.schemas.photo import PhotoResponse, PhotoSchema
+from src.schemas.photo import PhotoResponse, PhotoSchema, QRResponseSchema
 from src.services.auth import auth_service
 from src.services.roles import RoleAccess
 from src.conf.config import config
 from src.conf import messages
 from src.repository import photos as repositories_photos
+from src.repository import qr_code as repositories_qr_code
 
 router = APIRouter(prefix="/photos", tags=["photos"])
 
@@ -96,3 +98,21 @@ async def get_photo_by_photoID(
         )
     return {"id": photo.id, "title": photo.title, "description": photo.description,
             "file_path": photo.file_path}
+
+
+@router.get("/{photo_id}/qr")
+async def create_qr_code(
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
+) -> str:
+    photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
+    if photo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND
+        )
+
+    data = photo.file_path
+    img_byte_arr = await repositories_qr_code.generate_qr_code(data)
+    qr_url = await repositories_qr_code.upload_qr_to_cloudinary(img_byte_arr, f"{photo.title}")
+    return qr_url
