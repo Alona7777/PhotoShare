@@ -13,6 +13,7 @@ from src.database.db import get_db
 from src.entity.models import User, Photo, Role
 from src.schemas.user import UserResponse
 from src.schemas.photo import PhotoResponse, PhotoSchema
+from src.schemas.qr_code import QRCodeResponse
 from src.services.auth import auth_service
 from src.services.roles import RoleAccess
 from src.conf.config import config
@@ -100,12 +101,12 @@ async def get_photo_by_photoID(
             "file_path": photo.file_path}
 
 
-@router.post("/{photo_id}/qr")
+@router.post("/{photo_id}/qr", response_model=QRCodeResponse)
 async def create_qr_code(
         photo_id: int,
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
-) -> str:
+) -> dict[str, Any]:
     photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
     if photo is None:
         raise HTTPException(
@@ -115,4 +116,4 @@ async def create_qr_code(
     data = photo.file_path
     img_byte_arr = await repositories_qr_code.generate_qr_code(data)
     qr_url = await repositories_qr_code.upload_qr_to_cloudinary(img_byte_arr, f"{photo.title}")
-    return qr_url
+    return {"id": photo.id, "file_path": qr_url}
