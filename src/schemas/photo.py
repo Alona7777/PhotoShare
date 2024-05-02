@@ -20,8 +20,3 @@ class PhotoResponse(BaseModel):
     file_path: str
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class QRResponseSchema(BaseModel):
-    id: int = 1
-    file_path: str

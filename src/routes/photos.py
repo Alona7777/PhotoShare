@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db import get_db
 from src.entity.models import User, Photo, Role
 from src.schemas.user import UserResponse
-from src.schemas.photo import PhotoResponse, PhotoSchema, QRResponseSchema
+from src.schemas.photo import PhotoResponse, PhotoSchema
 from src.services.auth import auth_service
 from src.services.roles import RoleAccess
 from src.conf.config import config
@@ -100,7 +100,7 @@ async def get_photo_by_photoID(
             "file_path": photo.file_path}
 
 
-@router.get("/{photo_id}/qr")
+@router.post("/{photo_id}/qr")
 async def create_qr_code(
         photo_id: int,
         db: AsyncSession = Depends(get_db),
