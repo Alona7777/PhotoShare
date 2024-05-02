@@ -66,3 +66,4 @@ starlette==0.37.2
 typing_extensions==4.10.0
 urllib3==2.2.1
 uvicorn==0.29.0
+qrcode==7.4.2
