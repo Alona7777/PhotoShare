@@ -1,3 +1,4 @@
+import enum
 from datetime import datetime, date
 from typing import Optional
 
@@ -18,5 +19,24 @@ class PhotoResponse(BaseModel):
     title: str
     description: str
     file_path: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SortDirection(enum.Enum):
+    asc = 'asc'
+    desc = 'desc'
+
+
+class CommentModel(BaseModel):
+    content: str = Field(max_length=2000)
+
+
+class CommentResponse(CommentModel):
+    id: int
+    content: str = Field(max_length=2000)
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

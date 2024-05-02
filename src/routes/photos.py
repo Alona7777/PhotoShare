@@ -32,13 +32,13 @@ async def get_photos(
         limit: int = 100,
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
-) -> List[Photo]:
+) -> List[Photo] :
     photos = await repositories_photos.get_photos(skip, limit, current_user, db)
     output_photos = []
-    for photo in photos:
+    for photo in photos :
         photo_obj: Photo = photo[0]
-        output_photos.append({"id": photo_obj.id, "title": photo_obj.title, "description": photo_obj.description,
-                              "file_path": photo_obj.file_path})
+        output_photos.append({"id" : photo_obj.id, "title" : photo_obj.title, "description" : photo_obj.description,
+                              "file_path" : photo_obj.file_path})
     return output_photos
 
 
@@ -49,7 +49,7 @@ async def create_photo(
         file: UploadFile = File(),
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
-) -> Photo:
+) -> Photo :
     return await repositories_photos.create_photo(title, description, current_user, db, file)
 
 
@@ -60,11 +60,11 @@ async def update_photo_description(
         photo_id: int,
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
-) -> Photo:
+) -> Photo :
     photo = await repositories_photos.update_photo_description(
         photo_id, description, current_user, db
     )
-    if photo is None:
+    if photo is None :
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND
         )
@@ -79,7 +79,7 @@ async def remove_photo(
         current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
     photo = await repositories_photos.remove_photo(photo_id, current_user, db)
-    if photo is None:
+    if photo is None :
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND
         )
@@ -87,18 +87,19 @@ async def remove_photo(
 
 
 @router.get("/{photo_id}", response_model=PhotoResponse)
-async def get_photo_by_photoID(
+async def get_photo_by_photo_id(
         photo_id: int,
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
-) -> dict[str, Any]:
-    photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
-    if photo is None:
+) -> Photo:
+    photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
+    if photo is None :
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND
         )
-    return {"id": photo.id, "title": photo.title, "description": photo.description,
-            "file_path": photo.file_path}
+    # return {"id" : photo.id, "title" : photo.title, "description" : photo.description,
+    #         "file_path" : photo.file_path}
+    return photo
 
 
 @router.post("/{photo_id}/qr", response_model=QRCodeResponse)
@@ -106,9 +107,9 @@ async def create_qr_code(
         photo_id: int,
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
-) -> dict[str, Any]:
-    photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
-    if photo is None:
+) -> dict[str, Any] :
+    photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
+    if photo is None :
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND
         )
@@ -116,4 +117,4 @@ async def create_qr_code(
     data = photo.file_path
     img_byte_arr = await repositories_qr_code.generate_qr_code(data)
     qr_url = await repositories_qr_code.upload_qr_to_cloudinary(img_byte_arr, f"{photo.title}")
-    return {"id": photo.id, "file_path": qr_url}
+    return {"id" : photo.id, "file_path" : qr_url}

@@ -39,7 +39,7 @@ async def apply_transformation(
     - **angle** - int: The angle of the photo in degrees, can be 0, 90, 180, 270 or -90, -180, -270
     - **effect** - str: The effect to apply to the photo, can be cartoonify, pixelate:5, vignette,  art:zorro, art:al_dente, art:audrey, art:eucalyptus, art:incognito, art:linen, art:peacock, art:red_rock, art:stucco
     """
-    original_photo = await repositories_photos.get_photo_by_ID(photo_id=body.id, user=current_user,
+    original_photo = await repositories_photos.get_photo_by_id(photo_id=body.id, user=current_user,
                                                                db=db)
     if original_photo is None:
         raise HTTPException(
