@@ -40,6 +40,7 @@ class User(Base) :
         back_populates = "user",
         cascade = "all, delete-orphan"
     )
+    ban_users: Mapped[relationship] = relationship("BanUser", back_populates = "user", cascade = "all, delete-orphan")
 
 
 class Friendship(Base) :
@@ -118,5 +119,9 @@ class PhotoTag(Base) :
     photo_id: Mapped[int] = Column(Integer, ForeignKey("photos.id"), primary_key = True)
     tag_id: Mapped[int] = Column(Integer, ForeignKey("tags.id"), primary_key = True)
 
-def create_mannually_tables():
-    Base.metadata.create_all(create_engine(config.DB_URL))
+
+class BanUser(Base):
+    __tablename__ = "ban_users"
+    id: Mapped[int] = mapped_column(primary_key = True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), unique = True)
+    user: Mapped["User"] = relationship("User", back_populates = "ban_users")
