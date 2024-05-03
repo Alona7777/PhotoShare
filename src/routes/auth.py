@@ -1,7 +1,7 @@
 import string
 import random
 
-from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks, Request
+from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks, Request, Header
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_limiter.depends import RateLimiter
 from fastapi.responses import RedirectResponse
@@ -50,8 +50,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
 
     :param body: OAuth2PasswordRequestForm: Get the username and password from the request body
     :param db: AsyncSession: Get the database connection
-    :return: A dictionary with the following keys:
-    :doc-author: Naboka Artem
+    :return: A dictionary with the following keys
     """
     user = await repositories_users.get_user_by_email(body.username, db)
     if user is None :
@@ -60,7 +59,9 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Email not verified!")
     if not auth_service.verify_password(body.password, user.password) :
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Incorrect registration information!")
-
+    ban_user = await repositories_users.get_ban_by_user_id(user.id, db)
+    if ban_user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are banned!")
     # Generate JWT token
     access_token = await auth_service.create_access_token(data = {"sub" : user.email})
     refresh_token = await auth_service.create_refresh_token(data = {"sub" : user.email})
@@ -233,3 +234,4 @@ async def reset_password(bt: BackgroundTasks, request: Request,
     # user = await repositories_users.get_user_by_email(user.email, db)
     bt.add_task(send_random_password, user.email, user.username, str(request.base_url), password1)
     return {"message" : "New password sent by email!"}
+
