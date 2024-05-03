@@ -16,14 +16,9 @@ class UserResponse(BaseModel):
     username: str
     email: EmailStr
     avatar: str | None
-    
-    # count_photo: int | None
     count_photo: Optional[int] = None
-    # count_comment: int | None
     count_comment: Optional[int] = None
-    # count_rating: int | None
     count_rating: Optional[int] = None
-    # count_friendship: int | None
     count_friendship: Optional[int] = None
     role: Role
 
@@ -56,3 +51,10 @@ class RequestEmail(BaseModel):
 class ResetPassword(BaseModel):
     password1: str
     password2: str
+
+
+class BanUser(BaseModel):
+    id: int
+    user_id: int
+
+    model_config = ConfigDict(from_attributes = True)
