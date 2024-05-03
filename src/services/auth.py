@@ -1,6 +1,6 @@
 import pickle
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy import func, select
 
@@ -28,6 +28,7 @@ class Auth :
         db = 0,
         password = config.REDIS_PASSWORD,
     )
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "api/auth/login")
 
     def verify_password(self, plain_password, hashed_password) :
         """
@@ -55,7 +56,6 @@ class Auth :
         """
         return self.pwd_context.hash(password)
 
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "api/auth/login")
 
     async def create_access_token(self, data: dict, expires_delta: Optional[float] = None):
         """
@@ -73,10 +73,10 @@ class Auth :
         """
         to_encode = data.copy()
         if expires_delta:
-            expire = datetime.now() + timedelta(seconds=expires_delta)
+            expire = datetime.now(timezone.utc) + timedelta(seconds=expires_delta)
         else:
-            expire = datetime.now() + timedelta(minutes=15)
-        to_encode.update({"iat": datetime.now(), "exp": expire, "scope": "access_token"})
+            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        to_encode.update({"iat": datetime.now(timezone.utc), "exp": expire, "scope": "access_token"})
         encoded_access_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_access_token
 
@@ -95,10 +95,10 @@ class Auth :
         """
         to_encode = data.copy()
         if expires_delta:
-            expire = datetime.now() + timedelta(seconds=expires_delta)
+            expire = datetime.now(timezone.utc) + timedelta(seconds=expires_delta)
         else:
-            expire = datetime.now() + timedelta(days=7)
-        to_encode.update({"iat": datetime.now(), "exp": expire, "scope": "refresh_token"})
+            expire = datetime.now(timezone.utc) + timedelta(days=7)
+        to_encode.update({"iat": datetime.now(timezone.utc), "exp": expire, "scope": "refresh_token"})
         encoded_refresh_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_refresh_token
 
@@ -152,7 +152,8 @@ class Auth :
                     raise credentials_exception
             else :
                 raise credentials_exception
-        except JWTError as e :
+        except JWTError  as e :   
+            print(e)
             raise credentials_exception
 
         user_hash = str(email)
