@@ -1,11 +1,13 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from libgravatar import Gravatar
+from typing import List
 
 from src.database.db import get_db
-from src.entity.models import User
+from src.entity.models import User, BanUser
 from src.schemas.user import UserSchema
+from src.conf import messages
 
 
 async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
@@ -25,13 +27,7 @@ async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
 
 
 async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)) -> User:
-    """
-    Получение информации о пользователе по его идентификатору из базы данных.
 
-    :param user_id: int: Идентификатор пользователя
-    :param db: Session: Сессия базы данных
-    :return: Объект пользователя из базы данных
-    """
     filter_user = select(User).filter(User.id == user_id)
     user = await db.execute(filter_user)
     user = user.scalar_one_or_none()
@@ -130,3 +126,36 @@ async def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> Us
     await db.commit()
     await db.refresh(user)
     return user
+
+
+async def create_ban_by_user_id(user_id: int,  db: AsyncSession) -> BanUser:
+    ban_user = BanUser(user_id=user_id) 
+    db.add(ban_user)
+    await db.commit()
+    await db.refresh(ban_user)
+    return ban_user
+
+
+async def delete_ban_by_user_id(user_id: int, db: AsyncSession = Depends(get_db)) ->  BanUser:
+    user_expression = select(BanUser).filter(BanUser.user_id==user_id)
+    ban = await db.execute(user_expression)
+    ban_user = ban.scalar_one_or_none()
+    if not ban_user:
+        raise HTTPException(status_code=404, detail=messages.NOT_BAN_USER)
+    await db.delete(ban_user)
+    await db.commit()
+    return ban_user
+
+
+async def get_ban_users(skip: int, limit: int, db: AsyncSession = Depends(get_db)) -> List[BanUser]:
+    expression = select(BanUser).offset(skip).limit(limit)
+    ban_users = await db.execute(expression)
+    ban_users = ban_users.all()
+    return ban_users 
+
+
+async def get_ban_by_user_id(user_id: int, db: AsyncSession = Depends(get_db)) ->  BanUser:
+    filter_user = select(BanUser).filter(BanUser.user_id==user_id)
+    ban_user = await db.execute(filter_user)
+    ban_user = ban_user.scalar_one_or_none()
+    return ban_user

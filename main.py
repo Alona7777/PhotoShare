@@ -12,12 +12,21 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
+
 from src.routes import auth, users, photos, transformation, comments, rating
+
+from src.routes import auth, users, photos, transformation, comments
+
 from src.conf.config import config
+from src.utils.py_logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info(f"lifespan running")
     r = await redis.Redis(
         host=config.REDIS_DOMAIN,
         port=config.REDIS_PORT,
@@ -106,6 +115,7 @@ async def user_agent_ban_middleware(request: Request, call_next: Callable):
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(photos.router, prefix="/api")
+app.include_router(comments.router, prefix="/api")
 app.include_router(transformation.router, prefix="/api")
 #app.include_router(comments.router, prefix='/api')
 app.include_router(rating.router, prefix='/api')
@@ -164,7 +174,7 @@ async def healthchecker(db: AsyncSession = Depends(get_db)):
             raise HTTPException(status_code=500, detail="Database is not configured correctly")
         return {"message": "Welcome to FastAPI!"}
     except Exception as e:
-        print(e)
+        logger.error(f"[ERROR]: {e}")
         raise HTTPException(status_code=500, detail="Error connecting to the database")
 
 
