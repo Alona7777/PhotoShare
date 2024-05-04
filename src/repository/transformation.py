@@ -13,7 +13,7 @@ from src.conf.config import config
 from src.database.db import get_db
 from src.entity.models import User, Photo
 from src.schemas.photo import PhotoSchema
-from src.repository.tags import create_or_get_tag
+#from src.repository.tags import create_or_get_tag
 
 cloudinary.config(
     cloud_name=config.CLD_NAME,

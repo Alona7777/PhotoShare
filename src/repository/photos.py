@@ -13,7 +13,7 @@ from src.conf.config import config
 from src.database.db import get_db
 from src.entity.models import User, Photo
 from src.schemas.photo import PhotoSchema
-from src.repository.tags import create_or_get_tag
+# from src.repository.tags import create_or_get_tag
 
 cloudinary.config(
     cloud_name=config.CLD_NAME,
@@ -23,7 +23,7 @@ cloudinary.config(
 )
 
 
-async def get_photo_by_ID(photo_id: int, user: User, db: AsyncSession = Depends(get_db)):
+async def get_photo_by_id(photo_id: int, user: User, db: AsyncSession = Depends(get_db)):
     """
     Get a user by email.
 

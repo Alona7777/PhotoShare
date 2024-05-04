@@ -92,7 +92,7 @@ async def get_photo_by_photoID(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ) -> dict[str, Any]:
-    photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
+    photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
     if photo is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND
@@ -107,7 +107,7 @@ async def create_qr_code(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ) -> dict[str, Any]:
-    photo = await repositories_photos.get_photo_by_ID(photo_id, current_user, db)
+    photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
     if photo is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_FOUND

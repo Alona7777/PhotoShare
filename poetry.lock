@@ -525,6 +525,16 @@ test = ["certifi", "pretend", "pytest (>=6.2.0)", "pytest-benchmark", "pytest-co
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
+name = "django-qrcode"
+version = "0.3"
+description = "Django application that provides simple templatetags to generate QR-codes"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-qrcode-0.3.tar.gz", hash = "sha256:88598af03087859c30b83ecd345dd3e988d739f13543e0bef9274eda18d55e0c"},
+]
+
+[[package]]
 name = "dnspython"
 version = "2.6.1"
 description = "DNS toolkit"
@@ -1577,4 +1587,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7e8903dc58f5eb5deda038eabb88c009388feaebc9a67deba7729815c1bce4ef"
+content-hash = "592e6f035e6aa0645c1c9a2983e2eb00dcaa0ef6f9c030c28ad59ec212f4eebd"

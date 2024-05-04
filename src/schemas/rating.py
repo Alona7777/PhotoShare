@@ -14,14 +14,13 @@ class ViewRatingModel(BaseModel):
 
 class RatingModel(BaseModel):
     rating: ViewRatingModel
-    user_id: int = Field(1, gt=0)
-    image_id: int = Field(1, gt=0)
+    user_id: int = Field(..., gt=0)
+    image_id: int = Field(..., gt=0)
 
 
 class RatingResponse(BaseModel):
     id: int = 1
-    rating: dict = {"one_star": False, "two_stars": False, "three_stars": False, "four_stars": False,
-                    "five_stars": False}
+    rating: ViewRatingModel
     user: UserResponse
 
     model_config = ConfigDict(from_attributes=True)

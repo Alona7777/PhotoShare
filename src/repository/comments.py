@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.entity.models import Comment, User
 from src.conf import messages
-from src.schemas.photo import CommentModel, SortDirection
+from src.schemas.comments import CommentModel, SortDirection
 
 
 async def add_comment(body: CommentModel,
@@ -16,12 +16,13 @@ async def add_comment(body: CommentModel,
     db.add(comment)
     db.commit()
     db.refresh(comment)
+    return comment
 
 
 async def update_comment(comment_id: int,
                          body: CommentModel,
                          user: User,
-                         db:Session) -> Optional[Comment]:
+                         db: Session) -> Optional[Comment]:
     comment: Optional[Comment] = db.query(Comment).filter_by(id=comment_id).first()
     if not comment or not body.comment:
         return None

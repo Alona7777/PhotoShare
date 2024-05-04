@@ -15,13 +15,13 @@ async def get_average_rating(image_id: int, db: AsyncSession) -> float:
     ratings = result.scalars().all()
     if not ratings:
         return 0
-    sum_user_rating = sum(rating.photo_id for rating in ratings)
+    sum_user_rating = sum(rating.rating for rating in ratings)
     average_user_rating = sum_user_rating / len(ratings)
     return average_user_rating
 
 
-async def get_rating(rating_id: int, db: AsyncSession) -> Rating:
-    stmt = select(Rating).where(Rating.id == rating_id)
+async def get_rating(rating: int, db: AsyncSession) -> Rating:
+    stmt = select(Rating).where(Rating.id == rating)
     result = await db.execute(stmt)
     rating = result.scalars().first()
     return rating
@@ -34,7 +34,7 @@ async def create_rating_from_user(photo_id, body: RatingModel, user: User, db: A
     rating_in_database = result.scalars().first()
     if rating_in_database:
         return None
-    rating_from_user = Rating(rating=body.rating.dict())
+    rating_from_user = Rating(photo_id=photo_id, user_id=user.id, rating=body.rating)
     db.add(rating_from_user)
     await db.commit()
     await db.refresh(rating_from_user)
@@ -45,7 +45,7 @@ async def update_rating(rating_id: int, body: RatingModel, db: AsyncSession) -> 
     result = await db.execute(select(Rating).where(Rating.id == rating_id))
     rating = result.scalars().first()
     if rating:
-        rating.rating = body.rating.dict()
+        rating.rating = body.rating
         await db.commit()
     return rating
 

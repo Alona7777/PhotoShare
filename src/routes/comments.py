@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 from fastapi.security import HTTPBearer
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.conf import messages
 from src.database.db import get_db
 from src.entity.models import Comment, User
 from src.repository import comments as repository_comments, photos as repository_photos
 from src.schemas import photo
-from src.schemas.photo import PhotoSchema, CommentResponse, SortDirection
+from src.schemas.comments import CommentResponse, SortDirection
 from src.schemas.user import UserResponse
 from src.services.auth import auth_service
 
@@ -46,10 +46,10 @@ async def get_comments_by_photo_id(
         db: Session = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ) -> List[Comment]:
-    photo = await repository_photos.get_photo_by_id(photo_id, db)
+    photo = await repository_photos.get_photo_by_id(photo_id, current_user)
     if photo is None:
         raise HTTPException(status_code=404, detail="Photo not found")
-    comments = await repository_comments.get_comments_by_photo_id(photo_id, db, sort_direction)
+    comments = await repository_comments.get_comments_by_photo(photo_id, sort_direction, db)
     return comments
 
 
@@ -60,13 +60,13 @@ async def get_comments_by_photo_id(
              )
 async def add_comment(
         photo_id: int = Path(ge=1),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ) -> Optional[Comment]:
-    photo = await repository_photos.get_photos(photo_id, current_user, db)
+    photo = await repository_photos.get_photos(photo_id, db, current_user)
     if photo is None:
         raise HTTPException(status_code=404, detail="Photo not found")
-    comment = await repository_comments.add_comment(photo_id, current_user, db)
+    comment = await repository_comments.add_comment(photo_id, db, current_user)
     return comment
 
 
