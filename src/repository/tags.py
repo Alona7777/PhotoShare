@@ -1,64 +1,54 @@
-from typing import List, Optional, Type
-from sqlalchemy.orm import Session
+from typing import List, Optional, Type, Sequence
+
+from sqlalchemy import select
+# from sqlalchemy.orm import Session
 from src.entity.models import Tag
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.schemas.tag import TagModel
 
-async def create_tag(name, db: Session) -> Tag:
-    """
-The create_tag function creates a new tag in the database.
 
-:param name: Create a new tag object
-:param db: Session: Pass the database session to the function
-:return: The tag object that was created
-:doc-author: Trelent
-"""
-    tag = Tag(name=name)
-    db.add(tag)
-    db.commit()
-    db.refresh(tag)
+async def get_tags(skip: int, limit: int, db: AsyncSession) -> Sequence[Tag]:
+    result = await db.execute(
+        select(Tag)
+        .offset(skip)
+        .limit(limit)
+    )
+    tags = result.scalars().all()
+    return tags
+
+
+async def get_tag(tag_id: int, db: AsyncSession) -> Optional[Tag]:
+    statement = select(Tag).where(Tag.id == tag_id)
+    result = await db.execute(statement)
+    tag = result.scalars().first()
     return tag
 
 
-async def get_tags(db: Session) -> List[Type[Tag]]:
-    """
-The get_tags function returns a list of all tags in the database.
-
-:param db: Session: Pass in the database session
-:return: A list of tags
-:doc-author: Trelent
-"""
-    return db.query(Tag).all()
+async def create_tag(body: TagModel, db: AsyncSession) -> Tag:
+    tag = Tag(name=body.name)
+    db.add(tag)
+    await db.commit()
+    await db.refresh(tag)
+    return tag
 
 
-async def get_tag(tag_id: int, db: Session) -> Optional[Tag]:
-    """
-The get_tag function takes a tag_id and db as parameters.
-It returns the first Tag object in the database that matches the given tag_id.
-
-:param tag_id: int: Specify the tag id
-:param db: Session: Pass the database session to the function
-:return: A tag object
-:doc-author: Trelent
-"""
-    return db.query(Tag).filter_by(id=tag_id).first()
+async def update_tag(tag_id: int, body: TagModel, db: AsyncSession) -> Optional[Tag]:
+    result = await db.execute(select(Tag).where(Tag.id == tag_id))
+    tag = result.scalars().first()
+    if tag:
+        tag.name = body.name
+        await db.commit()
+        await db.refresh(tag)
+    return tag
 
 
-async def get_tag_by_name(name: str, db: Session) -> Optional[Tag]:
-    """
-The get_tag_by_name function returns a Tag object from the database, given its name.
+async def remove_tag(tag_id: int, db: AsyncSession) -> Optional[Tag]:
+    result = await db.execute(select(Tag).where(Tag.id == tag_id))
+    tag = result.scalars().first()
 
-:param name: str: Specify the name of the tag to be searched for
-:param db: Session: Pass the database session to the function
-:return: The first tag with the name specified in the function arguments
-:doc-author: Trelent
-"""
-    return db.query(Tag).filter_by(name=name).first()
-
-async def create_or_get_tag(tag_name: str, db: AsyncSession) -> Tag:
-    
-    existing_tag = await get_tag_by_name(tag_name, db)
-    if existing_tag:
-        return existing_tag
-    else:
-        return await create_tag(tag_name, db)
+    if tag:
+        await db.delete(tag)
+        await db.commit()
+        return tag
+    return None
