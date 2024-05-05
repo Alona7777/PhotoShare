@@ -110,7 +110,7 @@ class Tag(Base) :
     id: Mapped[int] = mapped_column(primary_key = True)
     name: Mapped[str] = mapped_column(String, unique = True)
 
-    # photos_relation: Mapped[relationship] = relationship("Photo", secondary = "photo_tags", backref = "tags")
+    photos_relation: Mapped[relationship] = relationship("Photo", secondary = "photo_tags", backref = "tags")
 
 
 class PhotoTag(Base) :

@@ -1,3 +1,5 @@
+import pathlib
+
 import redis.asyncio as redis
 import re
 from ipaddress import ip_address
@@ -10,6 +12,7 @@ from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.staticfiles import StaticFiles
 
 from src.database.db import get_db
 from src.routes import auth, users, photos, transformation, comments, rating, tags
@@ -17,6 +20,7 @@ from src.routes import auth, users, photos, transformation, comments, rating, ta
 from src.conf.config import config
 from src.utils.py_logger import get_logger
 
+from fastapi.templating import Jinja2Templates
 
 logger = get_logger(__name__)
 
@@ -109,12 +113,23 @@ async def user_agent_ban_middleware(request: Request, call_next: Callable):
     return response
 
 
+templates = Jinja2Templates(directory='templates')
+BASE_DIR = pathlib.Path(__file__).parent
+
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+
+
+@app.get('/', response_class=HTMLResponse, description='main page')
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, 'title': 'PhotoShare App'})
+
+
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(photos.router, prefix="/api")
 app.include_router(comments.router, prefix="/api")
 app.include_router(transformation.router, prefix="/api")
-#app.include_router(comments.router, prefix='/api')
+app.include_router(comments.router, prefix='/api')
 app.include_router(tags.router, prefix='/api')
 app.include_router(rating.router, prefix='/api')
 

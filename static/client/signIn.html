@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ title}}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="text-center">
+    <main class="form-signin">
+        <form autocomplete="off">
+            <h1 class="h1_mb">Please sign in</h1>
+            <div class="form-floating">
+                <label for="floatingInput">Email adress</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="floatingInput"
+                    placeholder="name@example.com"
+                    name="username"
+                    required/>
+            </div>
+            <div class="form-floating">
+                <label id="label" for="floatingPassword">Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="floatingPassword"
+                    placeholder="password"
+                    name="password"
+                    required/>
+            </div>
+            <button class="btn_signin" type="submit">Sign in</button>
+            <div class="small-text-center">
+                  <a href="/templates/reset_password.html" class="text-center"><i>Forgot Password?</i></a>
+            </div>
+            <p class="p_signin">&copy; 2024</p>
+        </form>
+    </main>
+    <script src="/static/client/js/signin.js"></script>
+</body>
+</html>

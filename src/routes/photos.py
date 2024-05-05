@@ -46,11 +46,12 @@ async def get_photos(
 async def create_photo(
         title: str = Form(),
         description: str | None = Form(),
+        tags: List[str] = None,
         file: UploadFile = File(),
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo :
-    return await repositories_photos.create_photo(title, description, current_user, db, file)
+    return await repositories_photos.create_photo(title, description, tags, current_user, db, file)
 
 
 @router.put("/{photo_id}/{description}", response_model=PhotoResponse,

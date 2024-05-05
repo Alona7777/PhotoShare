@@ -1,0 +1,257 @@
+body {margin: 0px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: rgb(14, 14, 14);
+    max-width: 80em;}
+
+.cover-container {
+   min-height:100vh;
+   max-width: 100%;
+   margin: 2em 4em 4em 4em;
+   background-color: #605a5a;
+}
+
+.cov{
+    background-color:  #323538;
+    margin: 1.5em 5em 1em 5em;
+    border-radius: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+}
+
+
+
+
+.col {
+    width: 10%;
+}
+
+.side {
+    width: 20%;
+}
+
+figure {
+    width: 50%;
+    margin-top: 0;
+}
+
+
+h1 {
+    color: white;
+    font-size: 2.3em;
+    }
+
+.float-md-start {
+    color: white;
+    margin-top: 0;
+
+}
+
+
+.nav-link {
+    color: #16c62d;
+    text-decoration: none;
+    padding-right: 0.5em;
+    font-size: 1.2em;
+}
+
+.nav-link:hover {
+    color: white;
+    text-decoration: underline;
+
+    }
+
+.btn {
+    background: #0f8a1f;
+    color: white;
+    padding: 0.5em;
+    border-radius: 11px;
+    text-decoration: none;
+    margin-top: 2em;
+    display: block;
+    width: 5em;
+    text-align: center;
+}
+
+.btn:hover {
+    background: #072f0c;
+    }
+
+
+.btn_foot {
+    display:block;
+    color: white;
+    text-decoration: none;
+    padding-bottom: 0.5em;}
+
+.footer {
+   text-align: center;
+  }
+
+.photo {
+    width: 22em;
+    height: 19em;
+    display: block;
+    border-radius: 10%;
+    box-shadow: 0 0 20px rgba(42 187 49 / 70%);
+}
+
+figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;}
+
+a.figcaption {
+    display: block;
+    padding: 0.5em 0.5em 0.5em 0.5em;
+    color: white;
+    font-size: 1.2em;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-decoration: none;
+    background: #0f8a1f;
+    border-radius: 11px;
+    text-align: center;
+    margin: 0 auto;
+    width: 9em;
+}
+
+a.figcaption:hover{
+    background: #072f0c;
+
+}
+
+.side {flex-grow: 1;
+    margin-left: 2em;
+    margin-top: 2em;
+  }
+
+.main {flex-grow: 1;
+    margin-top: 2.5em;}
+
+.col {
+    flex-grow: 0.1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+}
+
+.home-campa {
+    height: 100%;
+    width: 2px;
+    background: linear-gradient(transparent, rgb(63, 185, 80), rgb(63, 185, 80), transparent);
+    transition-duration: 900ms;
+    transition-delay: 0ms;
+    left: 35%;
+    z-index: 1;
+     position: absolute;
+}
+
+.shine {
+    position: absolute;
+    top: 50%;
+    left: 35%;
+    transform: translate(0%, -50%);
+    z-index: 2;
+    width: 5vw;
+}
+.text-under-photo {
+   width: 25em; }
+
+p {color: white;
+    letter-spacing: 1px;
+    text-align: justify;
+    hyphens: auto;
+    margin: 0.8em}
+
+
+p:first-child  {text-indent: 20px;}
+
+.p-main {
+    margin-top: 1em;
+    font-weight: 800;
+    font-size: 1.3em;
+    padding: 0;
+    margin-bottom: 0;
+}
+.developer{
+    color: #16c62d;}
+
+.sign {
+    display: flex;
+    flex-direction: row;
+
+}
+
+a.btn_top {
+    color: white;
+    padding: 0.3em;
+    border-radius: 11px;
+    text-decoration: none;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-right: 1em;
+    display: block;
+    width: 5em;
+    text-align: center;
+    align-self: end;
+    letter-spacing: 0.1em;
+}
+
+
+.btn_top:first-child {
+  background: #0f8a1f;
+}
+
+.btn_top:last-child {
+  background: #296331;
+}
+
+a.btn_top:first-child:hover {
+    background: #072f0c;
+    }
+
+a.btn_top:last-child:hover {
+    background: #0f8a1f;
+    }
+
+
+@media (max-width: 768px) {
+    .cov {
+       flex-direction: column;
+       align-items: baseline;
+       min-width: 18em;
+    }
+}
+@media (max-width: 768px) {
+    .col {
+       display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .photo {
+      max-width: 16em;
+    }
+}
+
+@media (max-width: 768px) {
+    .cover-container {
+         max-width: 24em;
+         margin: 0;
+         padding: 0;
+}
+    }
+
+@media (max-width: 768px) {
+    figure {
+         max-width: 24em;
+         align-self: center;
+}
+    }

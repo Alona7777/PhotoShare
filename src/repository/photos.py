@@ -58,10 +58,11 @@ async def get_photos(
 async def create_photo(
         title: str,
         description: str | None,
+        tags: List[str],
         user: User,
         db: AsyncSession = Depends(get_db),
         file: UploadFile = File(),
-) -> Photo :
+) -> Photo:
     letters = string.ascii_lowercase
     random_name = ''.join(random.choice(letters) for _ in range(20))
     public_id = f"PhotoShare/{user.email}/{random_name}"
@@ -70,7 +71,7 @@ async def create_photo(
         public_id=public_id,
         overwrite=True)
     photo = Photo(
-        title=title, description=description, file_path=res_photo.get("url"), user_id=user.id
+        title=title, description=description, tags=tags, file_path=res_photo.get("url"), user_id=user.id
     )
     db.add(photo)
     await db.commit()
