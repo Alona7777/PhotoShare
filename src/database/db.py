@@ -39,13 +39,14 @@ class DatabaseSessionManager:
         :doc-author: Naboka Artem
         """
         if self._session_maker is None:
-            raise Exception("Session is not initialized")
+            raise Exception("Session Maker is not initialized")
         session = self._session_maker()
         try:
             yield session
         except SQLAlchemyError as err:
-            print(err)
+            print(f"Database error: {err}")
             await session.rollback()
+            raise
         finally:
             await session.close()
 
