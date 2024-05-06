@@ -2,7 +2,8 @@ from pydantic import BaseModel, Field
 
 
 class TagModel(BaseModel):
-    name: str = Field(max_length=25)
+    id: int
+    name: str
 
 
 class TagResponse(TagModel):
@@ -10,6 +11,7 @@ class TagResponse(TagModel):
 
     class Config:
         from_attributes = True
+
 
 
 """ 
