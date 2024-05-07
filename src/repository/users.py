@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from libgravatar import Gravatar
@@ -18,7 +18,6 @@ async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
     :param email: str: Pass in the email of the user we want to get from our database
     :param db: AsyncSession: Connect to the database
     :return: A user object if the email exists in the database
-    :doc-author: Naboka Artem
     """
     filter_user = select(User).filter_by(email=email)
     user = await db.execute(filter_user)
@@ -27,10 +26,11 @@ async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
 
 
 async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)) -> User:
-
     filter_user = select(User).filter(User.id == user_id)
     user = await db.execute(filter_user)
     user = user.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail=messages.NOT_USER)
     return user
 
 
@@ -41,7 +41,6 @@ async def create_user(body: UserSchema, db: AsyncSession = Depends(get_db)):
     :param body: UserSchema: Validate the request body
     :param db: AsyncSession: Get the database session from the dependency
     :return: The newly created user
-    :doc-author: Naboka Artem
     """
     avatar = None
     try:
@@ -69,7 +68,6 @@ async def update_token(user: User, token: str | None, db: AsyncSession):
     :param token: str | None: Specify that the token parameter can be either a string or none
     :param db: AsyncSession: Pass the database session to the function
     :return: The user
-    :doc-author: Naboka Artem
     """
     user.refresh_token = token
     await db.commit()
@@ -84,7 +82,6 @@ async def verified_email(email: str, db: AsyncSession) -> None:
     :param email: str: Specify the email of the user to be verified
     :param db: AsyncSession: Pass the database session into the function
     :return: None
-    :doc-author: Naboka Artem
     """
     user = await get_user_by_email(email, db)
     user.verified = True
@@ -102,7 +99,6 @@ async def update_user_password(email: str, password: str, db: AsyncSession) -> N
     :param password: str: Update the user's password
     :param db: AsyncSession: Pass the database session to the function
     :return: None
-    :doc-author: Naboka Artem
     """
     user = await get_user_by_email(email, db)
     user.password = password
@@ -119,7 +115,6 @@ async def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> Us
     :param url: str | None: Specify that the url parameter can be either a string or none
     :param db: AsyncSession: Pass in the database session
     :return: A user object
-    :doc-author: Naboka Artem
     """
     user = await get_user_by_email(email, db)
     user.avatar = url
@@ -128,34 +123,3 @@ async def update_avatar_url(email: str, url: str | None, db: AsyncSession) -> Us
     return user
 
 
-async def create_ban_by_user_id(user_id: int,  db: AsyncSession) -> BanUser:
-    ban_user = BanUser(user_id=user_id) 
-    db.add(ban_user)
-    await db.commit()
-    await db.refresh(ban_user)
-    return ban_user
-
-
-async def delete_ban_by_user_id(user_id: int, db: AsyncSession = Depends(get_db)) ->  BanUser:
-    user_expression = select(BanUser).filter(BanUser.user_id==user_id)
-    ban = await db.execute(user_expression)
-    ban_user = ban.scalar_one_or_none()
-    if not ban_user:
-        raise HTTPException(status_code=404, detail=messages.NOT_BAN_USER)
-    await db.delete(ban_user)
-    await db.commit()
-    return ban_user
-
-
-async def get_ban_users(skip: int, limit: int, db: AsyncSession = Depends(get_db)) -> List[BanUser]:
-    expression = select(BanUser).offset(skip).limit(limit)
-    ban_users = await db.execute(expression)
-    ban_users = ban_users.all()
-    return ban_users 
-
-
-async def get_ban_by_user_id(user_id: int, db: AsyncSession = Depends(get_db)) ->  BanUser:
-    filter_user = select(BanUser).filter(BanUser.user_id==user_id)
-    ban_user = await db.execute(filter_user)
-    ban_user = ban_user.scalar_one_or_none()
-    return ban_user

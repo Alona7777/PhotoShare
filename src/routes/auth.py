@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
 from src.repository import users as repositories_users
+from src.repository import admin as repositories_admin
 from src.services.email import send_email, send_email_reset_password, send_message_password, send_random_password
 from src.schemas.user import UserSchema, UserResponse, TokenSchema, RequestEmail, ResetPassword
 from src.services.auth import auth_service
@@ -30,7 +31,6 @@ async def signup(body: UserSchema, bt: BackgroundTasks, request: Request, db: As
     :param request: Request: Get the base url of the server
     :param db: AsyncSession: Get the database session
     :return: The new user
-    :doc-author: Naboka Artem
     """
     exist_user = await repositories_users.get_user_by_email(body.email, db)
     if exist_user :
@@ -59,7 +59,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Email not verified!")
     if not auth_service.verify_password(body.password, user.password) :
         raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Incorrect registration information!")
-    ban_user = await repositories_users.get_ban_by_user_id(user.id, db)
+    ban_user = await repositories_admin.get_ban_by_user_id(user.id, db)
     if ban_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are banned!")
     # Generate JWT token

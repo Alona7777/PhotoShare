@@ -14,7 +14,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.staticfiles import StaticFiles
 from src.database.db import get_db
-from src.routes import auth, users, photos, transformation, comments, rating, tags
+from src.routes import auth, users, photos, transformation, comments, rating, tags, admin
 
 from src.conf.config import config
 from src.utils.py_logger import get_logger
@@ -124,6 +124,7 @@ async def root(request: Request):
 
 
 app.include_router(auth.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(photos.router, prefix="/api")
 app.include_router(comments.router, prefix="/api")
