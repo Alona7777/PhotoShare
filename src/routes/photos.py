@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Dict
 from fastapi import APIRouter, Depends, UploadFile, File, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -139,7 +139,7 @@ async def create_qr_code(
     photo_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
-) -> dict[str, Any]:
+) -> Dict[str, Any]:
     """
     The create_qr_code function creates a QR code from the photo's file_path.
         The function takes in a photo_id and returns the id of the photo and its qr code url.
