@@ -1,4 +1,6 @@
 NOT_FOUND = "Not found"
+NOT_PHOTO = "Photo not found"
+NOT_USER = "User not found"
 NOT_BAN_USER = "Not found banned user"
 CONFLICT_ROLE = "The role conflict"
 
