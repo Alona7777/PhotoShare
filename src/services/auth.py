@@ -299,10 +299,11 @@ class Auth:
         :param data: dict: Pass the data to be encoded
         :return: A token
         """
-        to_encode = data.copy(timezone.utc)
+        to_encode = data.copy()
         expire = datetime.now(timezone.utc) + timedelta(days=7)
         to_encode.update({"iat": datetime.now(timezone.utc), "exp": expire})
         token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
+
         return token
 
     async def get_email_from_token(self, token: str):
