@@ -248,11 +248,11 @@ async def reset_password(
     credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
 ) -> User:
     """
-    The reset_password function is used to reset a user's password.
-        It takes in the following parameters:
-            body (ResetPassword): The new password for the user.
-            background_tasks (BackgroundTasks): A list of tasks that are run in the background. This is used to send an email to the user confirming their new password has been set successfully.
-            request (Request): The HTTP request object, which contains information about what was sent by the client and how it was sent, such as headers and URL arguments/parameters.
+    The reset_password function is used to reset a user's password. It takes in the following parameters: body (
+    ResetPassword): The new password for the user. background_tasks (BackgroundTasks): A list of tasks that are run
+    in the background. This is used to send an email to the user confirming their new password has been set
+    successfully. request (Request): The HTTP request object, which contains information about what was sent by the
+    client and how it was sent, such as headers and URL arguments/parameters.
 
     :param body: ResetPassword: Get the password from the user
     :param background_tasks: BackgroundTasks: Add a task to the background tasks queue

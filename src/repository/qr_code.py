@@ -14,12 +14,6 @@ cloudinary.config(
 
 
 async def generate_qr_code(data):
-    """
-    The generate_qr_code function takes in a string of data and returns a QR code image.
-    
-    :param data: Generate the qr code
-    :return: A bytesio object, which is a stream of bytes
-    """
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -38,15 +32,6 @@ async def generate_qr_code(data):
 
 
 async def upload_qr_to_cloudinary(img_byte_arr, file_name):
-    """
-    The upload_qr_to_cloudinary function takes in a byte array of an image and the name of the file.
-    It then uploads that image to cloudinary, using the public_id parameter as a unique identifier for each QR code.
-    The function returns a secure url to access that QR code.
-    
-    :param img_byte_arr: Pass in the image data that is to be uploaded
-    :param file_name: Name the file in cloudinary
-    :return: A url to the qr code image
-    """
     response = cloudinary.uploader.upload(
         file=img_byte_arr,
         public_id=f"qr_codes/{file_name}",

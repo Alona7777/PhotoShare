@@ -41,7 +41,7 @@ async def read_tag(tag_id: int, db: AsyncSession = Depends(get_db)):
     """
     The read_tag function is used to read a tag from the database.
         It takes in an integer, which represents the id of the tag that you want to read.
-        The function returns a TagResponse object, which contains all of the information about that particular tag.
+        The function returns a TagResponse object, which contains all the information about that particular tag.
     
     :param tag_id: int: Specify the tag id that we want to update
     :param db: AsyncSession: Pass the database session to the function

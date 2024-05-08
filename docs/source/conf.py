@@ -11,8 +11,8 @@ sys.path.insert(0, str(base_dir))
 # print(p)
 
 project = 'Project'
-copyright = '2024, Project Team'
-author = 'Project Team'
+copyright = '2024, Project Team-1'
+author = 'Project Team-1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
