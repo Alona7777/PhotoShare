@@ -5,7 +5,6 @@ import cloudinary.uploader
 from fastapi import Depends, UploadFile, File, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from libgravatar import Gravatar
 
 from typing import List
 
@@ -14,7 +13,7 @@ from src.conf import messages
 from src.database.db import get_db
 from src.entity.models import User, Photo, PhotoTag, Tag
 from src.schemas.photo import PhotoTagResponse
-from src.repository import tags as repositories_tags
+
 
 cloudinary.config(
     cloud_name=config.CLD_NAME,
@@ -25,7 +24,7 @@ cloudinary.config(
 
 
 async def get_photo_by_id(
-        photo_id: int, user: User, db: AsyncSession = Depends(get_db)
+    photo_id: int, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
     """
     Get a photo by its id.
@@ -46,7 +45,7 @@ async def get_photo_by_id(
 
 
 async def get_photos(
-        skip: int, limit: int, user: User, db: AsyncSession = Depends(get_db)
+    skip: int, limit: int, user: User, db: AsyncSession = Depends(get_db)
 ) -> List[Photo]:
     """
     Get photos for a given user.
@@ -64,18 +63,18 @@ async def get_photos(
 
 
 async def create_photo(
-        title: str,
-        description: str | None,
-        user: User,
-        db: AsyncSession = Depends(get_db),
-        file: UploadFile = File(),
+    title: str,
+    description: str | None,
+    user: User,
+    db: AsyncSession = Depends(get_db),
+    file: UploadFile = File(),
 ) -> Photo:
     """
     The create_photo function creates a new photo in the database.
     It takes three arguments: title, description and user. The title is a string that will be used as the name of the photo,
     the description is an optional string that can be used to describe what's on the picture and user is an object containing information about who uploaded it.
     The function also accepts two keyword arguments: db which contains our database session and file which contains information about our image file.
-    
+
     :param title: str: Set the title of the photo
     :param description: str | None: Specify that the description is optional
     :param user: User: Get the user object from the database
@@ -103,11 +102,11 @@ async def create_photo(
 
 
 async def update_photo_description(
-        photo_id: int, description: str, user: User, db: AsyncSession = Depends(get_db)
+    photo_id: int, description: str, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
     """
     The update_photo_description function updates the description of a photo.
-    
+
     :param photo_id: int: Specify the photo to update
     :param description: str: Pass the new description of the photo
     :param user: User: Get the user_id from the token
@@ -128,7 +127,7 @@ async def update_photo_description(
 
 
 async def remove_photo(
-        photo_id: int, user: User, db: AsyncSession = Depends(get_db)
+    photo_id: int, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
     """
     Remove a photo.
@@ -150,16 +149,30 @@ async def remove_photo(
     return photo
 
 
-async def create_tag_photo(photo_id: int,
-                           tags: str,
-                           user: User,
-                           db: AsyncSession = Depends(get_db)) -> PhotoTagResponse:
-    result = await db.execute(select(Photo).where(Photo.id == photo_id, Photo.user_id == user.id))
+async def create_tag_photo(
+    photo_id: int, tags: str, user: User, db: AsyncSession = Depends(get_db)
+) -> PhotoTagResponse:
+    """
+    The create_tag_photo function creates a tag for a photo.
+        The function takes in the following parameters:
+            - photo_id: int, the id of the photo to be tagged.
+            - tags: str, comma separated list of tags to add to this photo.  Max 5 tags per request allowed.
+            - user: User object, used for authentication and authorization purposes (to ensure that only authorized users can create new photos).
+    
+    :param photo_id: int: Specify the photo that we want to delete tags from
+    :param tags: str: Pass in a comma-separated list of tags
+    :param user: User: Get the user id from the jwt token
+    :param db: AsyncSession: Get the database session from the dependency injection container
+    :return: A phototagresponse object
+    """
+    result = await db.execute(
+        select(Photo).where(Photo.id == photo_id, Photo.user_id == user.id)
+    )
     photo = result.scalar_one_or_none()
     if not photo:
-        raise HTTPException(status_code=404, detail="Photo not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_PHOTO)
 
-    tag_list = tags.split(',')
+    tag_list = tags.split(",")
 
     if len(tag_list) > 5:
         tag_list = tag_list[:5]
@@ -175,7 +188,10 @@ async def create_tag_photo(photo_id: int,
             tag = add_tag
 
         find_photo_tag = await db.execute(
-            select(PhotoTag).where(PhotoTag.photo_id == photo_id, PhotoTag.tag_id == tag.id))
+            select(PhotoTag).where(
+                PhotoTag.photo_id == photo_id, PhotoTag.tag_id == tag.id
+            )
+        )
         photo_tag = find_photo_tag.scalar_one_or_none()
         if not photo_tag:
             photo_tag = PhotoTag(photo_id=photo_id, tag_id=tag.id)

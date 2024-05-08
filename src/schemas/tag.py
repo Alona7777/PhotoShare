@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class TagModel(BaseModel):
@@ -12,12 +12,3 @@ class TagResponse(TagModel):
     class Config:
         from_attributes = True
 
-
-
-""" 
-додати в class ImageResponse
-    tags: List[TagResponse]
-    ---
-додати в class ImageModel:
-    tags: List[str]
-"""
