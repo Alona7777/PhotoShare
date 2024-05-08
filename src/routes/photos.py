@@ -11,16 +11,15 @@ from src.repository import photos as repositories_photos
 from src.repository import qr_code as repositories_qr_code
 from src.repository import tags as repositories_tags
 
-
 router = APIRouter(prefix="/photos", tags=["photos"])
 
 
 @router.get("/all/", response_model=List[PhotoResponse])
 async def get_photos(
-    skip: int = 0,
-    limit: int = 100,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        skip: int = 0,
+        limit: int = 100,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ) -> List[Photo]:
     """
     The get_photos function returns a list of photos.
@@ -49,11 +48,11 @@ async def get_photos(
 
 @router.post("/", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def create_photo(
-    title: str = Form(),
-    description: str | None = Form(),
-    file: UploadFile = File(),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        title: str = Form(),
+        description: str | None = Form(),
+        file: UploadFile = File(),
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
     """
     The create_photo function creates a new photo in the database.
@@ -72,10 +71,10 @@ async def create_photo(
 
 @router.put("/{photo_id}/{description}", response_model=PhotoResponse)
 async def update_photo_description(
-    description: str,
-    photo_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        description: str,
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
     """
     The update_photo_description function updates the description of a photo.
@@ -95,9 +94,9 @@ async def update_photo_description(
 
 @router.delete("/{photo_id}", response_model=PhotoResponse)
 async def remove_photo(
-    photo_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
     """
     The remove_photo function is used to remove a photo from the database.
@@ -116,9 +115,9 @@ async def remove_photo(
 
 @router.get("/{photo_id}", response_model=PhotoResponse)
 async def get_photo_by_photo_id(
-    photo_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ) -> Photo:
     """
     The get_photo_by_photo_id function returns a photo object with the given id.
@@ -137,9 +136,9 @@ async def get_photo_by_photo_id(
 
 @router.post("/{photo_id}/qr", response_model=QRCodeResponse)
 async def create_qr_code(
-    photo_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
 ) -> Dict[str, Any]:
     """
     The create_qr_code function creates a QR code from the photo's file_path.
@@ -160,24 +159,12 @@ async def create_qr_code(
     return {"id": photo.id, "file_path": qr_url}
 
 
-
 @router.post("/tag/{photo_id}", response_model=PhotoTagResponse)
 async def create_tag_for_photo(
-    photo_id: int,
-    tag: str = Form(),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(auth_service.get_current_user),
-) -> PhotoTag:
-    photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
-    photo_title = photo.title
-    photo_description = photo.description
-    tags = await repositories_photos.create_tag_photo(photo_id, tag, db)
-    photo_tags = {
-            "id": photo_id,
-            "title": photo_title,
-            "description": photo_description,
-            "tags": tags,
-            }
+        photo_id: int,
+        tags: str,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
+):
+    photo_tags = await repositories_photos.create_tag_photo(photo_id, tags, current_user, db)
     return photo_tags
- 
-
