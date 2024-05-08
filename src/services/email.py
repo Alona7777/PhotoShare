@@ -35,7 +35,6 @@ async def send_email(email: EmailStr, username: str, host: str):
     :param username: str: Get the username of the user who is trying to register
     :param host: str: Pass the hostname of the server to the template
     :return: A coroutine object, which is not a value
-    :doc-author: Naboka Artem
     """
     try:
         token_verification = auth_service.create_email_token({"sub": email})
@@ -60,7 +59,6 @@ async def send_email_reset_password(email: EmailStr, username: str, host: str):
     :param username: str: Display the username in the email template
     :param host: str: Create the link to reset password
     :return: A token
-    :doc-author: Naboka Artem
     """
     try:
         token_reset_password = auth_service.create_email_token({"sub": email})
@@ -89,7 +87,6 @@ async def send_message_password(email: EmailStr, username: str, host: str):
     :param username: str: Get the username of the user who wants to reset his password
     :param host: str: Get the host of the website
     :return: A coroutine object
-    :doc-author: Naboka Artem
     """
     try:
         message = MessageSchema(
@@ -119,7 +116,6 @@ async def send_random_password(email: EmailStr, username: str, host: str, passwo
     :param host: str: Get the host name of the website
     :param password: str: Pass the new password to the function
     :return: A coroutine, which is an object that represents a function that returns a future
-    :doc-author: Naboka Artem
     """
     try:
         message = MessageSchema(
@@ -128,7 +124,6 @@ async def send_random_password(email: EmailStr, username: str, host: str, passwo
             template_body={"host": host, "username": username, "password": password},
             subtype=MessageType.html
         )
-
         fm = FastMail(conf)
         await fm.send_message(message, template_name="reset_random_password.html")
     except ConnectionErrors as err:

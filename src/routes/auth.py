@@ -1,25 +1,58 @@
 import string
 import random
 
-from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks, Request, Header
-from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
+from typing import Dict, Any
+from fastapi import (
+                APIRouter,
+                HTTPException,
+                Depends,
+                status,
+                BackgroundTasks,
+                Request,
+)
+from fastapi.security import (
+                            OAuth2PasswordRequestForm,
+                            HTTPAuthorizationCredentials,
+                            HTTPBearer,
+)
 from fastapi_limiter.depends import RateLimiter
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
+from src.entity.models import User
+from src.conf.messages import AuthMessages as auth_massages
 from src.repository import users as repositories_users
 from src.repository import admin as repositories_admin
-from src.services.email import send_email, send_email_reset_password, send_message_password, send_random_password
-from src.schemas.user import UserSchema, UserResponse, TokenSchema, RequestEmail, ResetPassword
+from src.services.email import (
+                            send_email,
+                            send_email_reset_password,
+                            send_message_password,
+                            send_random_password,
+)
+from src.schemas.user import (
+                            UserSchema,
+                            UserResponse,
+                            TokenSchema,
+                            RequestEmail,
+                            ResetPassword,
+)
 from src.services.auth import auth_service
 
-router = APIRouter(prefix = '/auth', tags = ['auth'])
+
+router = APIRouter(prefix="/auth", tags=["auth"])
 get_refresh_token = HTTPBearer()
 
 
-@router.post("/signup", response_model = UserResponse, status_code = status.HTTP_201_CREATED)
-async def signup(body: UserSchema, bt: BackgroundTasks, request: Request, db: AsyncSession = Depends(get_db)) :
+@router.post(
+    "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
+async def signup(
+    body: UserSchema,
+    bt: BackgroundTasks,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> User:
     """
     The signup function creates a new user in the database.
         It takes in a UserSchema object, which is validated by pydantic.
@@ -33,16 +66,20 @@ async def signup(body: UserSchema, bt: BackgroundTasks, request: Request, db: As
     :return: The new user
     """
     exist_user = await repositories_users.get_user_by_email(body.email, db)
-    if exist_user :
-        raise HTTPException(status_code = status.HTTP_409_CONFLICT, detail = "Account already exists!")
+    if exist_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail=auth_massages.ACCOUNT_EXISTS
+        )
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repositories_users.create_user(body, db)
     bt.add_task(send_email, new_user.email, new_user.username, str(request.base_url))
     return new_user
 
 
-@router.post("/login", response_model = TokenSchema)
-async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)) :
+@router.post("/login", response_model=TokenSchema)
+async def login(
+    body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
+) -> Dict[str, Any]:
     """
     The login function is used to authenticate a user.
         It takes in the username and password of the user, and returns an access token if successful.
@@ -53,25 +90,41 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     :return: A dictionary with the following keys
     """
     user = await repositories_users.get_user_by_email(body.username, db)
-    if user is None :
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Invalid registration information!")
-    if not user.verified :
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Email not verified!")
-    if not auth_service.verify_password(body.password, user.password) :
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Incorrect registration information!")
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=auth_massages.INVALID_REGISTRATION,
+        )
+    if not user.verified:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=auth_massages.EMAIL_NOT_VERIFIED
+        )
+    if not auth_service.verify_password(body.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=auth_massages.INVALID_REGISTRATION,
+        )
     ban_user = await repositories_admin.get_ban_by_user_id(user.id, db)
     if ban_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are banned!")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=auth_massages.BAN_USER
+        )
     # Generate JWT token
-    access_token = await auth_service.create_access_token(data = {"sub" : user.email})
-    refresh_token = await auth_service.create_refresh_token(data = {"sub" : user.email})
+    access_token = await auth_service.create_access_token(data={"sub": user.email})
+    refresh_token = await auth_service.create_refresh_token(data={"sub": user.email})
     await repositories_users.update_token(user, refresh_token, db)
-    return {"access_token" : access_token, "refresh_token" : refresh_token, "token_type" : "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
-@router.get('/refresh_token', response_model = TokenSchema)
-async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
-                        db: AsyncSession = Depends(get_db)) :
+@router.get("/refresh_token", response_model=TokenSchema)
+async def refresh_token(
+    credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
     """
     The refresh_token function is used to refresh the access token.
         It takes in a refresh token and returns an access_token, a new refresh_token, and the type of token.
@@ -79,23 +132,28 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_
     :param credentials: HTTPAuthorizationCredentials: Get the token from the header
     :param db: AsyncSession: Get the database session
     :return: A dictionary with the access_token, refresh_token and token type
-    :doc-author: Naboka Artem
     """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repositories_users.get_user_by_email(email, db)
-    if user.refresh_token != token :
+    if user.refresh_token != token:
         await repositories_users.update_token(user, None, db)
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Invalid refresh token!")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=auth_massages.INVALID_TOKEN
+        )
 
-    access_token = await auth_service.create_access_token(data = {"sub" : email})
-    refresh_token = await auth_service.create_refresh_token(data = {"sub" : email})
+    access_token = await auth_service.create_access_token(data={"sub": email})
+    refresh_token = await auth_service.create_refresh_token(data={"sub": email})
     await repositories_users.update_token(user, refresh_token, db)
-    return {"access_token" : access_token, "refresh_token" : refresh_token, "token_type" : "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
-@router.get('/verified_email/{token}')
-async def verified_email(token: str, db: AsyncSession = Depends(get_db)) :
+@router.get("/verified_email/{token}")
+async def verified_email(token: str, db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
     """
     The verified_email function is used to verify a user's email address.
         It takes in the token that was sent to the user's email and uses it to get their email address.
@@ -107,21 +165,26 @@ async def verified_email(token: str, db: AsyncSession = Depends(get_db)) :
     :param token: str: Get the email from the token
     :param db: AsyncSession: Connect to the database
     :return: A message that the email is already verified or a message that it has been verified
-    :doc-author: Naboka Artem
     """
     email = await auth_service.get_email_from_token(token)
     user = await repositories_users.get_user_by_email(email, db)
-    if user is None :
-        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST, detail = "Verification error!")
-    if user.verified :
-        return {"message" : "Your email is already verified!"}
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=auth_massages.VERIFICATION_ERROR
+        )
+    if user.verified:
+        return {"message": "Your email is already verified!"}
     await repositories_users.verified_email(email, db)
-    return {"message" : "Email verified!"}
+    return {"message": "Email verified!"}
 
 
-@router.post('/request_email')
-async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, request: Request,
-                        db: AsyncSession = Depends(get_db)) :
+@router.post("/request_email")
+async def request_email(
+    body: RequestEmail,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
     """
     The request_email function is used to send a confirmation email to the user.
         The function takes in an email address and sends a confirmation link to that address.
@@ -132,20 +195,25 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
     :param request: Request: Get the base url of the server
     :param db: AsyncSession: Connect to the database
     :return: A message to the user
-    :doc-author: Naboka Artem
     """
     user = await repositories_users.get_user_by_email(body.email, db)
 
-    if user.verified :
-        return {"message" : "Your email is already confirmed!"}
-    if user :
-        background_tasks.add_task(send_email, user.email, user.username, str(request.base_url))
-    return {"message" : "Check your email for confirmation."}
+    if user.verified:
+        return {"message": "Your email is already confirmed!"}
+    if user:
+        background_tasks.add_task(
+            send_email, user.email, user.username, str(request.base_url)
+        )
+    return {"message": "Check your email for confirmation."}
 
 
-@router.post('/send_reset_password')
-async def send_reset_password(body: RequestEmail, background_tasks: BackgroundTasks, request: Request,
-                              db: AsyncSession = Depends(get_db)) :
+@router.post("/send_reset_password")
+async def send_reset_password(
+    body: RequestEmail,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
     """
     The send_reset_password function is used to send an email to the user with a link that will allow them
     to reset their password. The function takes in a RequestEmail object, which contains the email of the user
@@ -157,23 +225,28 @@ async def send_reset_password(body: RequestEmail, background_tasks: BackgroundTa
     :param request: Request: Get the base url of the server
     :param db: AsyncSession: Get the database session
     :return: A message to the user
-    :doc-author: Naboka Artem
     """
     user = await repositories_users.get_user_by_email(body.email, db)
     print(user)
-    if user :
-        background_tasks.add_task(send_email_reset_password, user.email, user.username, str(request.base_url))
-    return {"message" : "Check your email for confirmation."}
+    if user:
+        background_tasks.add_task(
+            send_email_reset_password, user.email, user.username, str(request.base_url)
+        )
+    return {"message": "Check your email for confirmation."}
 
 
-@router.post('/reset_password/',
-             response_model = UserResponse,
-             dependencies = [Depends(RateLimiter(times = 1, seconds = 20))], )
-async def reset_password(body: ResetPassword,
-                         background_tasks: BackgroundTasks,
-                         request: Request,
-                         db: AsyncSession = Depends(get_db),
-                         credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token), ) :
+@router.post(
+    "/reset_password/",
+    response_model=UserResponse,
+    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
+)
+async def reset_password(
+    body: ResetPassword,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
+) -> User:
     """
     The reset_password function is used to reset a user's password.
         It takes in the following parameters:
@@ -188,28 +261,39 @@ async def reset_password(body: ResetPassword,
     :param credentials: HTTPAuthorizationCredentials: Get the refresh token
     :param : Send the email to the user
     :return: The user object
-    :doc-author: Naboka Artem
     """
-    if body.password1 is body.password2 :
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Password doesn't match")
+    if body.password1 is body.password2:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=auth_massages.NOT_MATCH_PASSWORD
+        )
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repositories_users.get_user_by_email(email, db)
-    if user :
+    if user:
         password = auth_service.get_password_hash(body.password1)
         new_user = await repositories_users.update_user_password(email, password, db)
         user = await repositories_users.get_user_by_email(user.email, db)
-        background_tasks.add_task(send_message_password, user.email, user.username, str(request.base_url))
+        background_tasks.add_task(
+            send_message_password, user.email, user.username, str(request.base_url)
+        )
         return user
-    else :
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail = "Invalid registration information!")
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=auth_massages.INVALID_REGISTRATION,
+        )
 
 
-@router.get('/reset_password/{token}',
-            dependencies = [Depends(RateLimiter(times = 1, seconds = 20))], )
-async def reset_password(bt: BackgroundTasks, request: Request,
-                         token: str, db: AsyncSession = Depends(get_db),
-                         ) :
+@router.get(
+    "/reset_password/{token}",
+    dependencies=[Depends(RateLimiter(times=1, seconds=20))],
+)
+async def reset_password(
+    bt: BackgroundTasks,
+    request: Request,
+    token: str,
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
     """
     The reset_password function is used to reset a user's password.
         It takes in the token from the email sent to the user and returns a new random password.
@@ -220,18 +304,22 @@ async def reset_password(bt: BackgroundTasks, request: Request,
     :param db: AsyncSession: Get the database session
     :param : Send the email in background
     :return: A message that a new password has been sent by email
-    :doc-author: Naboka Artem
     """
     email = await auth_service.get_email_from_token(token)
     user = await repositories_users.get_user_by_email(email, db)
-    if user is None :
-        raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST, detail = "Reset password error!")
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=auth_massages.RESET_PASSWORD_ERROR
+        )
     characters = string.ascii_letters + string.digits + string.punctuation
-    password1 = ''.join(random.choice(characters) for i in range(8))
+    password1 = "".join(random.choice(characters) for i in range(8))
     password = auth_service.get_password_hash(password1)
-    print(password1)
     new_user = await repositories_users.update_user_password(email, password, db)
-    # user = await repositories_users.get_user_by_email(user.email, db)
-    bt.add_task(send_random_password, user.email, user.username, str(request.base_url), password1)
-    return {"message" : "New password sent by email!"}
-
+    bt.add_task(
+        send_random_password,
+        user.email,
+        user.username,
+        str(request.base_url),
+        password1,
+    )
+    return {"message": "New password sent by email!"}

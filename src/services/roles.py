@@ -2,6 +2,7 @@ from fastapi import Request, Depends, HTTPException, status
 
 from src.entity.models import Role, User
 from src.services.auth import auth_service
+from src.conf.messages import RolesMessages as role_massages
 
 
 class RoleAccess:
@@ -14,7 +15,6 @@ class RoleAccess:
         :param self: Represent the instance of the class
         :param allowed_roles: list[Role]: Set the allowed_roles attribute
         :return: None
-        :doc-author: Naboka Artem
         """
         self.allowed_roles = allowed_roles
 
@@ -29,10 +29,9 @@ class RoleAccess:
         :param request: Request: Get the request object
         :param user: User: Pass the user object to the function
         :return: A function that can be used as a decorator
-        :doc-author: Naboka Artem
         """
         if user.role not in self.allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="FORBIDDEN"
+                detail=role_massages.FORBIDDEN
             )
