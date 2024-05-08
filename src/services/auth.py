@@ -180,12 +180,11 @@ class Auth:
             await self.cache.expire(user_hash, 300)
         else:
             user = pickle.loads(user)
-        # Selecting user photos from the database
         photos_count = await db.execute(
             select(func.count(Photo.id)).where(Photo.user_id == user.id)
         )
-        count_photo = photos_count.scalar()  # We get the amount photos
-        user.count_photo = count_photo  # Adding the amount photos to the user object
+        count_photo = photos_count.scalar() 
+        user.count_photo = count_photo 
         count_comment = await db.execute(
             select(func.count(Comment.id)).where(Comment.user_id == user.id)
         )
@@ -227,7 +226,6 @@ class Auth:
             headers={"WWW-Authenticate": "Bearer"},
         )
         try:
-            # Decode JWT
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
             if payload["scope"] == "access_token":
                 email = payload["sub"]
@@ -255,12 +253,11 @@ class Auth:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=messages.NOT_USER,
             )
-        # Selecting user photos from the database
         photos_count = await db.execute(
             select(func.count(Photo.id)).where(Photo.user_id == user.id)
         )
-        count_photo = photos_count.scalar()  # We get the amount photos
-        user.count_photo = count_photo  # Adding the amount photos to the user object
+        count_photo = photos_count.scalar() 
+        user.count_photo = count_photo  
         count_comment = await db.execute(
             select(func.count(Comment.id)).where(Comment.user_id == user.id)
         )

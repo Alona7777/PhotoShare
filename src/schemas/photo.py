@@ -1,20 +1,14 @@
 import enum
-from datetime import datetime, date
-from typing import Optional, List
+from datetime import datetime
+from typing import List
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
-
-from src.schemas.tag import TagResponse
-
-
-# from src.schemas.user import UserResponse
 
 
 class PhotoSchema(BaseModel):
     title: str = Field(min_length=3, max_length=50)
     description: str | None = ""
     tags: List[str]
-    # file_path: str
 
 
 class PhotoResponse(BaseModel):

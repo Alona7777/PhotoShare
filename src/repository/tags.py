@@ -1,6 +1,6 @@
 from typing import Optional, Sequence
 
-from fastapi import HTTPException, Form, Depends, status
+from fastapi import HTTPException, Depends, status
 from sqlalchemy import select
 from src.entity.models import Tag
 from sqlalchemy.ext.asyncio import AsyncSession
