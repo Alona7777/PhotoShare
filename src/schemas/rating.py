@@ -24,24 +24,20 @@ class ViewPhotoRating(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ViewRatingModel(BaseModel) :
-    one_star: bool
-    two_stars: bool
-    three_stars: bool
-    four_stars: bool
-    five_stars: bool
+class QuantityRating(BaseModel):
+    number_of_ratings: int
+    VeryBad: int
+    Bad: int
+    Average: int
+    Good: int
+    Excellent: int
+    average_rating: float
+
+    model_config = ConfigDict(from_attributes=True)
 
 
-class RatingModel(BaseModel) :
-    rating: ViewRatingModel
-    user_id: int = Field(1, gt=0)
-    image_id: int = Field(1, gt=0)
-
-
-class RatingResponse(BaseModel) :
-    id: int = 1
-    rating: dict = {"one_star" : False, "two_stars" : False, "three_stars" : False, "four_stars" : False,
-                    "five_stars" : False}
-    user: UserResponse
+class RatingModel(BaseModel):
+    id: int
+    rating: int
 
     model_config = ConfigDict(from_attributes=True)

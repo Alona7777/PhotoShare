@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from src.services.roles import RoleAccess
 from src.database.db import get_db
 from src.entity.models import User, Role, Rating
-from src.schemas.rating import RatingModel, RatingResponse, PhotoRating, ViewPhotoRating
+from src.schemas.rating import RatingModel, PhotoRating, ViewPhotoRating, QuantityRating
 from src.repository import rating as repository_ratings
 # from src.conf.messages import me
 
@@ -24,23 +24,29 @@ async def create_photo_rating(
         select_rating: PhotoRating = PhotoRating.five_stars,
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user)
-) -> Optional[Rating] :
+) -> Optional[Rating]:
     add_rating = await repository_ratings.create_rating_for_photo(photo_id, select_rating, current_user, db)
     return add_rating
 
 
-@router.get("/photo/{image_id}", response_model=int, dependencies=[Depends(access_to_route_all)])
-async def get_common_rating(image_id: int, db: AsyncSession = Depends(get_db),
-                            current_user: User = Depends(auth_service.get_current_user)) :
-    tags = await repository_ratings.get_average_rating(image_id, db)
-    return tags
+@router.get("/photo/{image_id}", response_model=QuantityRating)
+async def get_common_rating(image_id: int, db: AsyncSession = Depends(get_db)):
+    average_rating = await repository_ratings.get_average_rating(image_id, db)
+    return average_rating
 
 
-@router.get("/{rating_id}", response_model=RatingResponse, dependencies=[Depends(access_to_route_all)])
-async def read_tag(rating_id: int, db: AsyncSession = Depends(get_db)) :
-    rating = await repository_ratings.get_rating(rating_id, db)
-    if rating is None :
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Rating not found")
+@router.get("/photo/{photo_id}", response_model=RatingModel)
+async def read_tag(photo_id: int,
+                   current_user: User = Depends(auth_service.get_current_user),
+                   db: AsyncSession = Depends(get_db)):
+    rating = await repository_ratings.get_rating(photo_id, current_user, db)
+    return rating
+
+
+@router.get("/{rating_id}", response_model=RatingModel)
+async def read_tag(rating_id: int,
+                   db: AsyncSession = Depends(get_db)):
+    rating = await repository_ratings.get_rating_id(rating_id, db)
     return rating
 
 
