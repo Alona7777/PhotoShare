@@ -242,6 +242,12 @@ async def view_all_info_photo(photo_id: int,
 
             ratings_data.append({"user_name": user_name, "comment": content, "rating": rating})
 
+    result = await db.execute(select(Rating).where(Rating.photo_id == photo_id))
+    ratings = result.scalars().all()
+    number_of_ratings = len(ratings)
+    total_rating = sum(rating.rating for rating in ratings)
+    average_rating = total_rating / number_of_ratings
+
     list_rating_contents: List[UserRatingContents] = []
     for data in ratings_data:
         rating_content = UserRatingContents(**data)
@@ -252,6 +258,7 @@ async def view_all_info_photo(photo_id: int,
         title=photo.title,
         description=photo.description,
         file_path=photo.file_path,
+        average_rating=average_rating,
         tags=list_tags,
         comments=list_rating_contents
     )
