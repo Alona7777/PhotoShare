@@ -129,8 +129,6 @@ async def get_photo_by_photo_id(
     :return: A photo object
     """
     photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
-    # return {"id" : photo.id, "title" : photo.title, "description" : photo.description,
-    #         "file_path" : photo.file_path}
     return photo
 
 

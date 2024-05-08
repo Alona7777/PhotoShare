@@ -9,11 +9,11 @@ from src.schemas.user import BanUser
 from src.schemas.photo import PhotoResponse
 from src.services.auth import auth_service
 from src.services.roles import RoleAccess
-from src.conf.config import config
 from src.conf import messages
 from src.repository import admin as repositories_admin
 from src.repository import users as repositories_users
 from src.repository import photos as repositories_photos
+
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -149,8 +149,6 @@ async def get_photo_by_photo_id(
     :return: A photo object
     """
     photo = await repositories_admin.get_photo_by_id(photo_id, db)
-    # return {"id" : photo.id, "title" : photo.title, "description" : photo.description,
-    #         "file_path" : photo.file_path}
     return photo
 
 

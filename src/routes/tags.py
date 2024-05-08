@@ -10,6 +10,7 @@ from src.repository import tags as repository_tags
 from src.conf.messages import AuthMessages
 from src.services.roles import RoleAccess
 
+
 router = APIRouter(prefix="/tags", tags=["tags"])
 
 access_to_route_all = RoleAccess([Role.admin, Role.moderator])
@@ -111,3 +112,4 @@ async def remove_tag(tag_id: int, db: AsyncSession = Depends(get_db)):
     """
     tag = await repository_tags.remove_tag(tag_id, db)
     return tag
+

@@ -10,6 +10,7 @@ from src.schemas.rating import RatingModel, PhotoRating, ViewPhotoRating, Quanti
 from src.repository import rating as repository_ratings
 from src.services.auth import auth_service
 
+
 router = APIRouter(prefix="/ratings", tags=["ratings"])
 
 access_to_route_all = RoleAccess([Role.admin, Role.moderator])
@@ -143,3 +144,4 @@ async def remove_rating(
     """
     rating = await repository_ratings.remove_rating(photo_id, current_user, db)
     return rating
+
