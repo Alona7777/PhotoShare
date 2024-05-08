@@ -3,13 +3,13 @@ from fastapi import APIRouter, Depends, UploadFile, File, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
-from src.entity.models import User, Photo
-from src.schemas.photo import PhotoResponse, PhotoTagResponse
+from src.entity.models import User, Photo, PhotoTag
+from src.schemas.photo import PhotoResponse, PhotoTagResponse, ViewAllPhotos
 from src.schemas.qr_code import QRCodeResponse
 from src.services.auth import auth_service
 from src.repository import photos as repositories_photos
 from src.repository import qr_code as repositories_qr_code
-
+from src.repository import tags as repositories_tags
 
 router = APIRouter(prefix="/photos", tags=["photos"])
 
@@ -23,6 +23,7 @@ async def get_photos(
 ) -> List[Photo]:
     """
     The get_photos function returns a list of photos.
+    
     :param skip: int: Skip the first n photos
     :param limit: int: Limit the number of photos returned
     :param db: AsyncSession: Pass the database session to the function
@@ -55,6 +56,7 @@ async def create_photo(
 ) -> Photo:
     """
     The create_photo function creates a new photo in the database.
+    
     :param title: str: Get the title from the form
     :param description: str | None: Specify that the description field is optional
     :param file: UploadFile: Get the file from the request
@@ -76,6 +78,7 @@ async def update_photo_description(
 ) -> Photo:
     """
     The update_photo_description function updates the description of a photo.
+    
     :param description: str: Pass the new description of the photo to be updated
     :param photo_id: int: Identify the photo to update
     :param db: AsyncSession: Pass the database session to the function
@@ -99,6 +102,7 @@ async def remove_photo(
     The remove_photo function is used to remove a photo from the database.
         The function takes in an integer representing the id of the photo to be removed,
         and returns a Photo object containing information about that photo.
+    
     :param photo_id: int: Identify the photo to be removed
     :param db: AsyncSession: Pass the database connection to the function
     :param current_user: User: Get the user that is currently logged in
@@ -117,6 +121,7 @@ async def get_photo_by_photo_id(
 ) -> Photo:
     """
     The get_photo_by_photo_id function returns a photo object with the given id.
+    
     :param photo_id: int: Get the photo by id
     :param db: AsyncSession: Pass the database session to the function
     :param current_user: User: Get the current user from the database
@@ -124,6 +129,8 @@ async def get_photo_by_photo_id(
     :return: A photo object
     """
     photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
+    # return {"id" : photo.id, "title" : photo.title, "description" : photo.description,
+    #         "file_path" : photo.file_path}
     return photo
 
 
@@ -136,6 +143,7 @@ async def create_qr_code(
     """
     The create_qr_code function creates a QR code from the photo's file_path.
         The function takes in a photo_id and returns the id of the photo and its qr code url.
+    
     :param photo_id: int: Get the photo from the database
     :param db: AsyncSession: Pass the database session to the function
     :param current_user: User: Get the user who is currently logged in
@@ -158,16 +166,15 @@ async def create_tag_for_photo(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ):
-    """
-    The create_tag_for_photo function creates a tag for the photo with the given id.
-        The tags are stored in a comma-separated string, and each tag is separated by commas.
-        The function returns an array of PhotoTagResponse objects.
-    :param photo_id: int: Identify the photo that will be tagged
-    :param tags: str: Pass the tags to be added to the photo
-    :param db: AsyncSession: Get the database session
-    :param current_user: User: Get the current user
-    :param : Get the photo id
-    :return: A list of tags
-    """
     photo_tags = await repositories_photos.create_tag_photo(photo_id, tags, current_user, db)
     return photo_tags
+
+
+@router.get("/info/{photo_id}", response_model=ViewAllPhotos)
+async def get_all_info_photo(
+        photo_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(auth_service.get_current_user),
+):
+    all_info_photo = await repositories_photos.view_all_info_photo(photo_id, current_user, db)
+    return all_info_photo

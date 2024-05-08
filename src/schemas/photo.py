@@ -1,14 +1,20 @@
 import enum
-from datetime import datetime
-from typing import List
+from datetime import datetime, date
+from typing import Optional, List, Dict, Union
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
+
+from src.schemas.tag import TagResponse
+
+
+# from src.schemas.user import UserResponse
 
 
 class PhotoSchema(BaseModel):
     title: str = Field(min_length=3, max_length=50)
     description: str | None = ""
     tags: List[str]
+    # file_path: str
 
 
 class PhotoResponse(BaseModel):
@@ -27,6 +33,17 @@ class PhotoTagResponse(BaseModel):
     tags: List[str]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserRatingContents(BaseModel):
+    user_name: str
+    comment: str
+    rating: int
+
+
+class ViewAllPhotos(PhotoResponse):
+    tags: List[str]
+    comments: List[UserRatingContents]
 
 
 class SortDirection(enum.Enum):
