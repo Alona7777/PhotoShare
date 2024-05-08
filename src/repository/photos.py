@@ -12,9 +12,9 @@ from typing import List
 from src.conf.config import config
 from src.conf import messages
 from src.database.db import get_db
-from src.entity.models import User, Photo, PhotoTag
+from src.entity.models import User, Photo, PhotoTag, Tag
+from src.schemas.photo import PhotoTagResponse
 from src.repository import tags as repositories_tags
-
 
 cloudinary.config(
     cloud_name=config.CLD_NAME,
@@ -25,7 +25,7 @@ cloudinary.config(
 
 
 async def get_photo_by_id(
-    photo_id: int, user: User, db: AsyncSession = Depends(get_db)
+        photo_id: int, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
     """
     Get a photo by its id.
@@ -46,7 +46,7 @@ async def get_photo_by_id(
 
 
 async def get_photos(
-    skip: int, limit: int, user: User, db: AsyncSession = Depends(get_db)
+        skip: int, limit: int, user: User, db: AsyncSession = Depends(get_db)
 ) -> List[Photo]:
     """
     Get photos for a given user.
@@ -64,11 +64,11 @@ async def get_photos(
 
 
 async def create_photo(
-    title: str,
-    description: str | None,
-    user: User,
-    db: AsyncSession = Depends(get_db),
-    file: UploadFile = File(),
+        title: str,
+        description: str | None,
+        user: User,
+        db: AsyncSession = Depends(get_db),
+        file: UploadFile = File(),
 ) -> Photo:
     """
     The create_photo function creates a new photo in the database.
@@ -103,7 +103,7 @@ async def create_photo(
 
 
 async def update_photo_description(
-    photo_id: int, description: str, user: User, db: AsyncSession = Depends(get_db)
+        photo_id: int, description: str, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
     """
     The update_photo_description function updates the description of a photo.
@@ -128,7 +128,7 @@ async def update_photo_description(
 
 
 async def remove_photo(
-    photo_id: int, user: User, db: AsyncSession = Depends(get_db)
+        photo_id: int, user: User, db: AsyncSession = Depends(get_db)
 ) -> Photo:
     """
     Remove a photo.
@@ -150,27 +150,45 @@ async def remove_photo(
     return photo
 
 
-async def create_tag_photo(photo_id: int, tag: str, db: AsyncSession = Depends(get_db)) -> List[str]:
-    tag_expression = select(PhotoTag).filter(PhotoTag.photo_id == photo_id)
-    result = await db.execute(tag_expression)
-    photo_tags = result.all()
-    if len(photo_tags) >= 4:
-        raise HTTPException(
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=messages.TOO_MANY_TAGS
-        )
-    new_tag = await repositories_tags.get_or_create_tag(tag_name=tag, db=db)
-    new_tag_photo = PhotoTag(
-        photo_id = photo_id,
-        tag_id = new_tag.id
-    )
-    db.add(new_tag_photo)
-    await db.commit()
-    await db.refresh(new_tag_photo)
-    tags = []
-    tags.append(tag)
-    for t in photo_tags:
-        tag_obj: PhotoTag = t[0]
-        tag = await repositories_tags.get_tag_name(tag_id=tag_obj.tag_id, db=db)
-        tags.append(tag)
-    return tags
+async def create_tag_photo(photo_id: int,
+                           tags: str,
+                           user: User,
+                           db: AsyncSession = Depends(get_db)) -> PhotoTagResponse:
+    result = await db.execute(select(Photo).where(Photo.id == photo_id, Photo.user_id == user.id))
+    photo = result.scalar_one_or_none()
+    if not photo:
+        raise HTTPException(status_code=404, detail="Photo not found!")
 
+    tag_list = tags.split(',')
+
+    if len(tag_list) > 5:
+        tag_list = tag_list[:5]
+
+    for tag_name in tag_list:
+        find_tag = await db.execute(select(Tag).where(Tag.name == tag_name))
+        tag = find_tag.scalar_one_or_none()
+        if not tag:
+            add_tag = Tag(name=tag_name)
+            db.add(add_tag)
+            await db.commit()
+            await db.refresh(add_tag)
+            tag = add_tag
+
+        find_photo_tag = await db.execute(
+            select(PhotoTag).where(PhotoTag.photo_id == photo_id, PhotoTag.tag_id == tag.id))
+        photo_tag = find_photo_tag.scalar_one_or_none()
+        if not photo_tag:
+            photo_tag = PhotoTag(photo_id=photo_id, tag_id=tag.id)
+            db.add(photo_tag)
+            await db.commit()
+            await db.refresh(photo_tag)
+
+    await db.commit()
+    await db.refresh(photo)
+
+    return PhotoTagResponse(
+        id=photo.id,
+        title=photo.title,
+        description=photo.description,
+        tags=tag_list,
+    )
