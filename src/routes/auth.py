@@ -314,9 +314,7 @@ async def reset_password(
     characters = string.ascii_letters + string.digits + string.punctuation
     password1 = "".join(random.choice(characters) for i in range(8))
     password = auth_service.get_password_hash(password1)
-    print(password1)
     new_user = await repositories_users.update_user_password(email, password, db)
-    # user = await repositories_users.get_user_by_email(user.email, db)
     bt.add_task(
         send_random_password,
         user.email,

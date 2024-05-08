@@ -12,7 +12,8 @@ from typing import List
 from src.conf.config import config
 from src.conf import messages
 from src.database.db import get_db
-from src.entity.models import User, Photo
+from src.entity.models import User, Photo, PhotoTag
+from src.repository import tags as repositories_tags
 
 
 cloudinary.config(
@@ -147,3 +148,29 @@ async def remove_photo(
     await db.delete(photo)
     await db.commit()
     return photo
+
+
+async def create_tag_photo(photo_id: int, tag: str, db: AsyncSession = Depends(get_db)) -> List[str]:
+    tag_expression = select(PhotoTag).filter(PhotoTag.photo_id == photo_id)
+    result = await db.execute(tag_expression)
+    photo_tags = result.all()
+    if len(photo_tags) >= 4:
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=messages.TOO_MANY_TAGS
+        )
+    new_tag = await repositories_tags.get_or_create_tag(tag_name=tag, db=db)
+    new_tag_photo = PhotoTag(
+        photo_id = photo_id,
+        tag_id = new_tag.id
+    )
+    db.add(new_tag_photo)
+    await db.commit()
+    await db.refresh(new_tag_photo)
+    tags = []
+    tags.append(tag)
+    for t in photo_tags:
+        tag_obj: PhotoTag = t[0]
+        tag = await repositories_tags.get_tag_name(tag_id=tag_obj.tag_id, db=db)
+        tags.append(tag)
+    return tags
+
