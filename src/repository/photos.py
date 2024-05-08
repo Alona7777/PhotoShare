@@ -12,8 +12,8 @@ from typing import List
 from src.conf.config import config
 from src.conf import messages
 from src.database.db import get_db
-from src.entity.models import User, Photo, PhotoTag, Tag
-from src.schemas.photo import PhotoTagResponse
+from src.entity.models import User, Photo, PhotoTag, Tag, Comment, Rating
+from src.schemas.photo import PhotoTagResponse, ViewAllPhotos, SortDirection, UserRatingContents
 from src.repository import tags as repositories_tags
 
 cloudinary.config(
@@ -71,11 +71,10 @@ async def create_photo(
         file: UploadFile = File(),
 ) -> Photo:
     """
-    The create_photo function creates a new photo in the database. It takes three arguments: title, description and
-    user. The title is a string that will be used as the name of the photo, the description is an optional string
-    that can be used to describe what's on the picture and user is an object containing information about who
-    uploaded it. The function also accepts two keyword arguments: db which contains our database session and file
-    which contains information about our image file.
+    The create_photo function creates a new photo in the database.
+    It takes three arguments: title, description and user. The title is a string that will be used as the name of the photo,
+    the description is an optional string that can be used to describe what's on the picture and user is an object containing information about who uploaded it.
+    The function also accepts two keyword arguments: db which contains our database session and file which contains information about our image file.
     
     :param title: str: Set the title of the photo
     :param description: str | None: Specify that the description is optional
@@ -160,8 +159,13 @@ async def create_tag_photo(photo_id: int,
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found!")
 
-    tag_list = tags.split(',')
+    find_photo_tag = select(PhotoTag).filter(PhotoTag.photo_id == photo_id)
+    result = await db.execute(find_photo_tag)
+    photo_tags = result.scalars().all()
+    for photo_tag in photo_tags:
+        await db.delete(photo_tag)
 
+    tag_list = tags.split(',')
     if len(tag_list) > 5:
         tag_list = tag_list[:5]
 
@@ -175,14 +179,10 @@ async def create_tag_photo(photo_id: int,
             await db.refresh(add_tag)
             tag = add_tag
 
-        find_photo_tag = await db.execute(
-            select(PhotoTag).where(PhotoTag.photo_id == photo_id, PhotoTag.tag_id == tag.id))
-        photo_tag = find_photo_tag.scalar_one_or_none()
-        if not photo_tag:
-            photo_tag = PhotoTag(photo_id=photo_id, tag_id=tag.id)
-            db.add(photo_tag)
-            await db.commit()
-            await db.refresh(photo_tag)
+        photo_tag = PhotoTag(photo_id=photo_id, tag_id=tag.id)
+        db.add(photo_tag)
+        await db.commit()
+        await db.refresh(photo_tag)
 
     await db.commit()
     await db.refresh(photo)
@@ -192,4 +192,66 @@ async def create_tag_photo(photo_id: int,
         title=photo.title,
         description=photo.description,
         tags=tag_list,
+    )
+
+
+async def view_all_info_photo(photo_id: int,
+                              user: User,
+                              db: AsyncSession = Depends(get_db)) -> ViewAllPhotos:
+    # выбрать фото
+    result = await db.execute(select(Photo).where(Photo.id == photo_id))
+    photo = result.scalar_one_or_none()
+    if not photo:
+        raise HTTPException(status_code=404, detail="Photo not found!")
+
+    # выборка тегов
+    list_tags = []
+    find_photo_tag = select(PhotoTag).filter(PhotoTag.photo_id == photo_id)
+    result = await db.execute(find_photo_tag)
+    photo_tags = result.scalars().all()
+    for photo_tag in photo_tags:
+        find_tag = await db.execute(select(Tag).where(Tag.id == photo_tag.tag_id))
+        tag = find_tag.scalar_one_or_none()
+        if tag:
+            list_tags.append(tag.name)
+
+    # выборка комментариев
+    ratings_data = []
+    select_comments = select(Comment).filter(Comment.photo_id == photo_id)
+    query = select_comments.order_by(Comment.created_at.desc())
+    result = await db.execute(query)
+    comments = result.scalars().all()
+    for user_comment in comments:
+        user_name = "unknown"
+        content = user_comment.content
+
+        # находим пользователя комментария
+        find_user = await db.execute(select(User).where(User.id == user_comment.user_id))
+        comment_user = find_user.scalar_one_or_none()
+        content = ""
+        rating = 0
+        if comment_user:
+            user_name = comment_user.username
+
+            # находим оценку фото от пользователя
+            result = await db.execute(
+                select(Rating).where(Rating.photo_id == photo_id, Rating.user_id == comment_user.id))
+            existing_rating = result.scalar_one_or_none()
+            if existing_rating:
+                rating = existing_rating.rating
+
+            ratings_data.append({"user_name": user_name, "comment": content, "rating": rating})
+
+    list_rating_contents: List[UserRatingContents] = []
+    for data in ratings_data:
+        rating_content = UserRatingContents(**data)
+        list_rating_contents.append(rating_content)
+
+    return ViewAllPhotos(
+        id=photo.id,
+        title=photo.title,
+        description=photo.description,
+        file_path=photo.file_path,
+        tags=list_tags,
+        comments=list_rating_contents
     )
