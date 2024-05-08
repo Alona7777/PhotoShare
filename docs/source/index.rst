@@ -3,8 +3,8 @@ sphinx-quickstart on Wed Apr 17 20:23:41 2024.
 You can adapt this file completely to your liking, but it should at least
 contain the root `toctree` directive.
 
-Welcome to Contact project's documentation!
-===========================================
+Welcome to PhotoShare project's documentation!
+===============================================
 
 .. toctree::
    :maxdepth: 2
@@ -38,63 +38,154 @@ REST API entity Models
   :undoc-members:
   :show-inheritance:
 
-REST API repository BrDay
-=========================
-.. automodule:: src.repository.birthday
+REST API repository Admin
+==========================
+.. automodule:: src.repository.admin
   :members:
   :undoc-members:
   :show-inheritance:
 
-REST API repository Cont
-=========================
-.. automodule:: src.repository.contacts
+REST API repository Comments
+=============================
+.. automodule:: src.repository.comments
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API repository Photos
+==========================
+.. automodule:: src.repository.photos
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API repository Qr_code
+============================
+.. automodule:: src.repository.qr_code
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API repository Rating
+===========================
+.. automodule:: src.repository.rating
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API repository Tags
+==========================
+.. automodule:: src.repository.tags
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API repository Transformation
+===================================
+.. automodule:: src.repository.transformation
   :members:
   :undoc-members:
   :show-inheritance:
 
 REST API repository Users
-=========================
+==========================
 .. automodule:: src.repository.users
   :members:
   :undoc-members:
   :show-inheritance:
 
+REST API routes Admin
+======================
+.. automodule:: src.routes.admin
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
 REST API routes Auth
-=========================
+=====================
 .. automodule:: src.routes.auth
   :members:
   :undoc-members:
   :show-inheritance:
 
-REST API routes BrDay
+REST API routes Comments
 =========================
-.. automodule:: src.routes.birthday
+.. automodule:: src.routes.comments
   :members:
   :undoc-members:
   :show-inheritance:
 
-REST API routes Cont
-=========================
-.. automodule:: src.routes.contacts
+REST API routes Photos
+=======================
+.. automodule:: src.routes.photos
   :members:
   :undoc-members:
   :show-inheritance:
 
-REST API routes Users
-=========================
-.. automodule:: src.routes.users
+REST API routes Rating
+=======================
+.. automodule:: src.routes.rating
   :members:
   :undoc-members:
   :show-inheritance:
 
-REST API schemas Cont
-=========================
-.. automodule:: src.schemas.contact
+REST API routes Tags
+======================
+.. automodule:: src.routes.tags
   :members:
   :undoc-members:
   :show-inheritance:
 
-REST API schemas Users
+REST API routes Transformation
+===============================
+.. automodule:: src.routes.transformation
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API routes User
+======================
+.. automodule:: src.routes.user
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API schemas Photo
+=========================
+.. automodule:: src.schemas.photo
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API schemas Qr_code
+=========================
+.. automodule:: src.schemas.qr_code
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API schemas Rating
+=========================
+.. automodule:: src.schemas.rating
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API schemas Tag
+=========================
+.. automodule:: src.schemas.tag
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API schemas Transformation
+================================
+.. automodule:: src.schemas.transformation
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API schemas User
 =========================
 .. automodule:: src.schemas.user
   :members:
@@ -118,6 +209,13 @@ REST API services Email
 REST API services Roles
 =========================
 .. automodule:: src.services.roles
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+REST API utils Py_logger
+=========================
+.. automodule:: src.utils.py_logger
   :members:
   :undoc-members:
   :show-inheritance:

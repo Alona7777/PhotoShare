@@ -29,12 +29,12 @@ async def apply_transformation(
     current_user: User = Depends(auth_service.get_current_user),
 ) -> dict:
     """
-     - **aspect_ratio** - float: The aspect ratio of the photo, 1 is square, 0.5 is landscape, 2 is portrait
-    - **width** - int: The width of the photo
-    - **is_rounded** - bool: If the photo should be rounded
-    - **crop** - str: The crop type: fiill, scale, fit, limit, mfit, pad, crop, thumb, imagga_crop
-    - **angle** - int: The angle of the photo in degrees, can be 0, 90, 180, 270 or -90, -180, -270
-    - **effect** - str: The effect to apply to the photo, can be cartoonify, pixelate:5, vignette,  art:zorro, art:al_dente, art:audrey, art:eucalyptus, art:incognito, art:linen, art:peacock, art:red_rock, art:stucco
+    - **aspect_ratio** - float: The aspect ratio of the photo, 1 is square, 0.5 is landscape, 2 is portrait -
+    **width** - int: The width of the photo - **is_rounded** - bool: If the photo should be rounded - **crop** - str:
+    The crop type: fiill, scale, fit, limit, mfit, pad, crop, thumb, imagga_crop - **angle** - int: The angle of the
+    photo in degrees, can be 0, 90, 180, 270 or -90, -180, -270 - **effect** - str: The effect to apply to the photo,
+    can be cartoonify, pixelate:5, vignette,  art:zorro, art:al_dente, art:audrey, art:eucalyptus, art:incognito,
+    art:linen, art:peacock, art:red_rock, art:stucco
     """
     original_photo = await repositories_photos.get_photo_by_id(
         photo_id=body.id, user=current_user, db=db

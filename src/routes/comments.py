@@ -36,8 +36,7 @@ async def add_comment(
         The function takes in three parameters:
             - photo_id: an integer representing the id of a photo to which we want to add a comment.
             - comment_text: A string containing text that will be added as a new comment on this photo. 
-                This is required and must not be empty or null, otherwise an error will be thrown by FastAPI. 
-    
+                This is required and must not be empty or null, otherwise an error will be thrown by FastAPI.
     :param photo_id: int: Identify the photo to which the comment is added
     :param comment_text: str: Get the text of the comment
     :param db: AsyncSession: Pass the database session to the function
@@ -67,7 +66,6 @@ async def get_comment_by_id(
 ) -> Comment:
     """
     The get_comment_by_id function returns a comment by its id.
-    
     :param comment_id: int: Get the comment by its id
     :param db: AsyncSession: Get the database session
     :param current_user: User: Get the user that is currently logged in
@@ -97,8 +95,6 @@ async def get_comments_by_photo_id(
     """
     The get_comments_by_photo_id function returns a list of comments for the specified photo.
     The function accepts an optional sort_direction parameter, which defaults to descending order.
-    
-    
     :param photo_id: int: Specify the photo id for which we want to get comments
     :param sort_direction: SortDirection: Determine whether the comments should be sorted in ascending or descending order
     :param db: AsyncSession: Pass the database session to the function
@@ -130,7 +126,6 @@ async def update_comment(
         Args:
             comment_id (int): The id of the comment to update.
             comment_text (str): The new text for the updated Comment object.
-    
     :param comment_id: int: Identify the comment that is to be deleted
     :param comment_text: str: Get the new comment text from the request body
     :param db: AsyncSession: Pass the database session to the function
@@ -161,7 +156,6 @@ async def delete_comment(
     The delete_comment function deletes a comment from the database.
         Args:
             comment_id (int): The id of the comment to be deleted.
-    
     :param comment_id: int: Get the id of the comment to be deleted
     :param db: AsyncSession: Pass the database session to the repository layer
     :param : Get the comment_id from the url

@@ -26,6 +26,15 @@ logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+The lifespan function is a callback that will be executed when the application
+starts up and shuts down. It's useful for performing expensive initialization
+tasks, such as connecting to a database or initializing caches.
+
+:param app: FastAPI: Pass the fastapi object to the function
+:return: A generator
+:doc-author: Trelent
+"""
     logger.info(f"lifespan running")
     r = await redis.Redis(
         host=config.REDIS_DOMAIN,
@@ -76,9 +85,9 @@ user_agent_ban_list = [r"Googlebot", r"Python-urllib", r"bot-Yandex"]
 @app.middleware("http")
 async def user_agent_ban_middleware(request: Request, call_next: Callable):
     """
-    The user_agent_ban_middleware function is a middleware function that checks the user-agent header of an incoming request.
-    If the user-agent matches any of the patterns in our ban list, then we return a 403 Forbidden response. Otherwise, we call
-    the next middleware function and return its response.
+    The user_agent_ban_middleware function is a middleware function that checks the user-agent header of an incoming
+    request. If the user-agent matches any of the patterns in our ban list, then we return a 403 Forbidden response.
+    Otherwise, we call the next middleware function and return its response.
 
     :param request: Request: Access the request object
     :param call_next: Callable: Pass the request to the next middleware in line
@@ -105,6 +114,15 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 @app.get('/', response_class=HTMLResponse, description='main page')
 async def root(request: Request):
+    """
+The root function is the entry point for the application.
+It returns a TemplateResponse object, which renders an HTML template using Jinja2.
+The template is located in templates/index.html and uses data from the request object to render itself.
+
+:param request: Request: Get the request object
+:return: The index
+:doc-author: Trelent
+"""
     return templates.TemplateResponse("index.html", {"request": request, 'title': 'PhotoShare App'})
 
 

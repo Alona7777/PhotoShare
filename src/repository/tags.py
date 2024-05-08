@@ -1,6 +1,6 @@
-from typing import Optional, Sequence
+from typing import List, Optional, Type, Sequence
 
-from fastapi import HTTPException, Depends, status
+from fastapi import HTTPException, Form, Depends, status
 from sqlalchemy import select
 from src.entity.models import Tag
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -115,17 +115,6 @@ async def remove_tag(tag_id: int, db: AsyncSession) -> Optional[Tag]:
 
 
 async def get_or_create_tag(tag_name: str, db: AsyncSession) -> Tag:
-    """
-    The get_or_create_tag function takes a tag name and an async database session as arguments.
-    It then creates a select statement to find the tag in the database, executes it, and returns
-    the result. If there is no such tag in the database, it creates one with that name and adds 
-    it to the session. It then commits this change to the db before refreshing its own copy of 
-    the object from what's now stored in db.
-    
-    :param tag_name: str: Specify the name of the tag
-    :param db: AsyncSession: Pass the database session to the function
-    :return: A tag object
-    """
     statement = select(Tag).filter(Tag.name==tag_name)
     result = await db.execute(statement)
     tag = result.scalar_one_or_none()
@@ -139,14 +128,7 @@ async def get_or_create_tag(tag_name: str, db: AsyncSession) -> Tag:
 
 
 async def get_tag_name(tag_id: int, db: AsyncSession) -> str:
-    """
-    The get_tag_name function takes a tag_id and returns the name of the tag.
-        If no such tag exists, it raises an HTTPException with status code 404.
-    
-    :param tag_id: int: Specify the id of the tag that we want to get
-    :param db: AsyncSession: Pass the database session to the function
-    :return: The tag name for a given tag id
-    """
+
     statement = select(Tag.name).where(Tag.id == tag_id)
     result = await db.execute(statement)
     tag = result.scalars().first()

@@ -25,11 +25,11 @@ conf = ConnectionConfig(
 
 async def send_email(email: EmailStr, username: str, host: str):
     """
-    The send_email function sends an email to the user with a link to verify their email address.
-        The function takes in three parameters:
-            -email: EmailStr, the user's email address.
-            -username: str, the username of the user who is registering for an account.  This will be used in a greeting message within the body of the email sent to them.
-            -host: str, this is where we are hosting our application (i.e., localhost).  This will be used as part of a URL that we send in our verification link.
+    The send_email function sends an email to the user with a link to verify their email address. The function takes
+    in three parameters: -email: EmailStr, the user's email address. -username: str, the username of the user who is
+    registering for an account.  This will be used in a greeting message within the body of the email sent to them.
+    -host: str, this is where we are hosting our application (i.e., localhost).  This will be used as part of a URL
+    that we send in our verification link.
 
     :param email: EmailStr: Specify the email address of the recipient
     :param username: str: Get the username of the user who is trying to register
@@ -114,12 +114,10 @@ async def send_random_password(
     email: EmailStr, username: str, host: str, password: str
 ):
     """
-    The send_random_password function sends an email to the user with a new random password.
-        Args:
-            email (str): The user's email address.
-            username (str): The username of the account that is being reset.
-            host (str): The hostname of the server where this account exists, e.g., &quot;example-server&quot;.  This will be used in
-                constructing a link to login at https://&lt;host&gt;/login/.
+    The send_random_password function sends an email to the user with a new random password. Args: email (str): The
+    user's email address. username (str): The username of the account that is being reset. host (str): The hostname
+    of the server where this account exists, e.g., &quot;example-server&quot;.  This will be used in constructing a
+    link to login at https://&lt;host&gt;/login/.
 
     :param email: EmailStr: Validate the email address
     :param username: str: Pass the username to the template

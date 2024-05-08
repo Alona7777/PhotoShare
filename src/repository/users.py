@@ -26,6 +26,15 @@ async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
 
 
 async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)) -> User:
+    """
+The get_user_by_id function takes a user_id and returns the User object with that id.
+If no such user exists, it raises an HTTPException with status code 404 and detail message NOT_USER.
+
+:param user_id: int: Get the user by id
+:param db: AsyncSession: Pass the database session to the function
+:return: A user object
+:doc-author: Trelent
+"""
     filter_user = select(User).filter(User.id == user_id)
     user = await db.execute(filter_user)
     user = user.scalar_one_or_none()
