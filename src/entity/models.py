@@ -73,7 +73,7 @@ class Photo(Base) :
                                                           cascade = "all, delete-orphan")
     ratings_photos: Mapped[relationship] = relationship("Rating", back_populates = "photo",
                                                         cascade = "all, delete-orphan")
-    tags: Mapped[relationship] = relationship("Tag", secondary = "photo_tags", backref = "photos")
+    photo_tags: Mapped[relationship] = relationship("PhotoTag", back_populates = "photo", cascade = "all, delete-orphan")
 
 
 class Comment(Base) :
@@ -109,6 +109,7 @@ class Tag(Base) :
 
     id: Mapped[int] = mapped_column(primary_key = True)
     name: Mapped[str] = mapped_column(String, unique = True)
+    photo_tags: Mapped[relationship] = relationship("PhotoTag", back_populates = "tag")
 
     # photos_relation: Mapped[relationship] = relationship("Photo", secondary = "photo_tags", backref = "tags")
 
@@ -118,6 +119,8 @@ class PhotoTag(Base) :
 
     photo_id: Mapped[int] = Column(Integer, ForeignKey("photos.id"), primary_key = True)
     tag_id: Mapped[int] = Column(Integer, ForeignKey("tags.id"), primary_key = True)
+    photo: Mapped["Photo"] = relationship("Photo", back_populates = "photo_tags")
+    tag: Mapped["Tag"] = relationship("Tag", back_populates = "photo_tags")
 
 
 class BanUser(Base):

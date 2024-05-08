@@ -22,7 +22,15 @@ class PhotoResponse(BaseModel):
     title: str
     description: str
     file_path: str
-    # tags: List[TagResponse] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PhotoTagResponse(BaseModel):
+    id: int = 1
+    title: str
+    description: str
+    tags: List[str]
 
     model_config = ConfigDict(from_attributes=True)
 

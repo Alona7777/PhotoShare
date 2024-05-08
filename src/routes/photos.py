@@ -3,12 +3,13 @@ from fastapi import APIRouter, Depends, UploadFile, File, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
-from src.entity.models import User, Photo
-from src.schemas.photo import PhotoResponse
+from src.entity.models import User, Photo, PhotoTag
+from src.schemas.photo import PhotoResponse, PhotoTagResponse
 from src.schemas.qr_code import QRCodeResponse
 from src.services.auth import auth_service
 from src.repository import photos as repositories_photos
 from src.repository import qr_code as repositories_qr_code
+from src.repository import tags as repositories_tags
 
 
 router = APIRouter(prefix="/photos", tags=["photos"])
@@ -157,3 +158,26 @@ async def create_qr_code(
         img_byte_arr, f"{photo.title}"
     )
     return {"id": photo.id, "file_path": qr_url}
+
+
+
+@router.post("/tag/{photo_id}", response_model=PhotoTagResponse)
+async def create_tag_for_photo(
+    photo_id: int,
+    tag: str = Form(),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+) -> PhotoTag:
+    photo = await repositories_photos.get_photo_by_id(photo_id, current_user, db)
+    photo_title = photo.title
+    photo_description = photo.description
+    tags = await repositories_photos.create_tag_photo(photo_id, tag, db)
+    photo_tags = {
+            "id": photo_id,
+            "title": photo_title,
+            "description": photo_description,
+            "tags": tags,
+            }
+    return photo_tags
+ 
+

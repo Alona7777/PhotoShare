@@ -127,3 +127,16 @@ async def get_or_create_tag(tag_name: str, db: AsyncSession) -> Tag:
     return tag
 
 
+async def get_tag_name(tag_id: int, db: AsyncSession) -> str:
+
+    statement = select(Tag.name).where(Tag.id == tag_id)
+    result = await db.execute(statement)
+    tag = result.scalars().first()
+    if tag is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_TAG
+        )
+    return tag
+
+
+
