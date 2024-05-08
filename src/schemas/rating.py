@@ -1,9 +1,6 @@
 from enum import Enum
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Dict
-
-from src.schemas.user import UserResponse
+from pydantic import BaseModel, ConfigDict
 
 
 class PhotoRating(str, Enum):

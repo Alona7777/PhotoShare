@@ -50,19 +50,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# banned_ips = [
-#     ip_address("127.0.0.1"),
-# ]
-#
-#
-# @app.middleware("http")
-# async def ban_ips(request: Request, call_next: Callable):
-#     ip = ip_address(request.client.host)
-#     if ip in banned_ips:
-#         return JSONResponse(status_code = status.HTTP_403_FORBIDDEN, content = {"detail": "You are banned"})
-#     response = await call_next(request)
-#     return response
-
 ALLOWED_IPS = [ip_address("127.0.0.1"), ]
 
 
@@ -75,7 +62,6 @@ async def limit_access_by_ip(request: Request, call_next: Callable):
     :param request: Request: Access the request object
     :param call_next: Callable: Pass the next function in the chain
     :return: A jsonresponse object with a status code of 403 and a message
-    :doc-author: Trelent
     """
     ip = ip_address(request.client.host)
     if ip not in ALLOWED_IPS:
@@ -97,7 +83,6 @@ async def user_agent_ban_middleware(request: Request, call_next: Callable):
     :param request: Request: Access the request object
     :param call_next: Callable: Pass the request to the next middleware in line
     :return: A jsonresponse object that contains a status code of 403 and a detail message
-    :doc-author: Naboka Artem
     """
     print(request.headers.get("Authorization"))
     user_agent = request.headers.get("user-agent")
@@ -133,40 +118,6 @@ app.include_router(tags.router, prefix='/api')
 app.include_router(rating.router, prefix='/api')
 
 
-# app.include_router(birthday.router, prefix = "/api")
-
-# depricated, use lifespan instead
-# @app.on_event("startup")
-# async def startup():
-#     """
-#     The startup function is called when the application starts up.
-#     It's a good place to initialize things that are needed by your app,
-#     like database connections or caches.
-#
-#     :return: A list of functions to run after startup
-#     :doc-author: Naboka Artem
-#     """
-#     r = await redis.Redis(
-#         host=config.REDIS_DOMAIN,
-#         port=config.REDIS_PORT,
-#         db=0,
-#         password=config.REDIS_PASSWORD,
-#     )
-#     await FastAPILimiter.init(r)
-
-
-# @app.get("/")
-# def index():
-#     """
-#     The index function responds to a request for /api/v2/contacts
-#         with the complete lists of contacts
-#
-#     :return: A dictionary with the key &quot;message&quot; and value &quot;contacts application&quot;
-#     :doc-author: Naboka Artem
-#     """
-#     return {"message": "Contacts Application"}
-
-
 @app.get("/api/healthchecker")
 async def healthchecker(db: AsyncSession = Depends(get_db)):
     """
@@ -176,10 +127,8 @@ async def healthchecker(db: AsyncSession = Depends(get_db)):
 
     :param db: AsyncSession: Inject the database session into the function
     :return: A dictionary with a message
-    :doc-author: Naboka Artem
     """
     try:
-        # Make request
         result = await db.execute(text("SELECT 1"))
         result = result.fetchone()
         if result is None:

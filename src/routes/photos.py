@@ -3,13 +3,13 @@ from fastapi import APIRouter, Depends, UploadFile, File, status, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
-from src.entity.models import User, Photo, PhotoTag
+from src.entity.models import User, Photo
 from src.schemas.photo import PhotoResponse, PhotoTagResponse
 from src.schemas.qr_code import QRCodeResponse
 from src.services.auth import auth_service
 from src.repository import photos as repositories_photos
 from src.repository import qr_code as repositories_qr_code
-from src.repository import tags as repositories_tags
+
 
 router = APIRouter(prefix="/photos", tags=["photos"])
 
@@ -166,5 +166,17 @@ async def create_tag_for_photo(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    The create_tag_for_photo function creates a tag for the photo with the given id.
+        The tags are stored in a comma-separated string, and each tag is separated by commas.
+        The function returns an array of PhotoTagResponse objects.
+    
+    :param photo_id: int: Identify the photo that will be tagged
+    :param tags: str: Pass the tags to be added to the photo
+    :param db: AsyncSession: Get the database session
+    :param current_user: User: Get the current user
+    :param : Get the photo id
+    :return: A list of tags
+    """
     photo_tags = await repositories_photos.create_tag_photo(photo_id, tags, current_user, db)
     return photo_tags

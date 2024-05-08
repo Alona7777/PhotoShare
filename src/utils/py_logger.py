@@ -5,7 +5,7 @@ log_format = (
 )
 
 file_handler = logging.FileHandler("data/photo_share.log")
-file_handler.setLevel(logging.INFO)     # для реліза необхідно змінити на ERROR
+file_handler.setLevel(logging.INFO) 
 file_handler.setFormatter(logging.Formatter(log_format))
 
 stream_handler = logging.StreamHandler()
