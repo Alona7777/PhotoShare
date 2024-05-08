@@ -42,6 +42,7 @@ class UserRatingContents(BaseModel):
 
 
 class ViewAllPhotos(PhotoResponse):
+    file_path_gr: str
     average_rating: float
     tags: List[str]
     comments: List[UserRatingContents]

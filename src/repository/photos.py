@@ -15,6 +15,7 @@ from src.database.db import get_db
 from src.entity.models import User, Photo, PhotoTag, Tag, Comment, Rating
 from src.schemas.photo import PhotoTagResponse, ViewAllPhotos, SortDirection, UserRatingContents
 from src.repository import tags as repositories_tags
+from src.repository import qr_code as repositories_qr_code
 
 cloudinary.config(
     cloud_name=config.CLD_NAME,
@@ -245,19 +246,29 @@ async def view_all_info_photo(photo_id: int,
     result = await db.execute(select(Rating).where(Rating.photo_id == photo_id))
     ratings = result.scalars().all()
     number_of_ratings = len(ratings)
-    total_rating = sum(rating.rating for rating in ratings)
-    average_rating = total_rating / number_of_ratings
+    average_rating = 0
+    if number_of_ratings != 0:
+        total_rating = sum(rating.rating for rating in ratings)
+        average_rating = total_rating / number_of_ratings
 
     list_rating_contents: List[UserRatingContents] = []
     for data in ratings_data:
         rating_content = UserRatingContents(**data)
         list_rating_contents.append(rating_content)
 
+    # gr
+    data = photo.file_path
+    img_byte_arr = await repositories_qr_code.generate_qr_code(data)
+    file_path_gr = await repositories_qr_code.upload_qr_to_cloudinary(
+        img_byte_arr, f"{photo.title}"
+    )
+
     return ViewAllPhotos(
         id=photo.id,
         title=photo.title,
         description=photo.description,
         file_path=photo.file_path,
+        file_path_gr=file_path_gr,
         average_rating=average_rating,
         tags=list_tags,
         comments=list_rating_contents
