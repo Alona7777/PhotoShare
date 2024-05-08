@@ -20,7 +20,6 @@ class DatabaseSessionManager:
         :param self: Represent the instance of the class
         :param url: str: Create the engine
         :return: A new instance of the class
-        :doc-author: Trelent
         """
         self._engine: AsyncEngine | None = create_async_engine(url)
         self._session_maker: async_sessionmaker = async_sessionmaker(
@@ -36,7 +35,6 @@ class DatabaseSessionManager:
 
         :param self: Represent the instance of the class
         :return: A context manager, which is an object that has __enter__ and __exit__ methods
-        :doc-author: Naboka Artem
         """
         if self._session_maker is None:
             raise Exception("Session Maker is not initialized")
@@ -62,8 +60,6 @@ async def get_db():
     the difference is that yield from delegates to another generator.
 
     :return: A context manager that can be used to interact with the database
-    :doc-author: Naboka Artem
     """
     async with sessionmanager.session() as session:
-        # return session
         yield session

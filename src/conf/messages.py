@@ -1,6 +1,10 @@
 NOT_FOUND = "Not found"
 NOT_PHOTO = "Photo not found"
 NOT_USER = "User not found"
+NOT_COMMENT = "Comment not found"
+NOT_TAG = "Tag not found"
+TOO_MANY_TAGS = "Too many tags!"
+NOT_TAG_OR_RULES = "Tag not found or you don't have enough rules"
 NOT_BAN_USER = "Not found banned user"
 CONFLICT_ROLE = "The role conflict"
 
