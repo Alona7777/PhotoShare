@@ -1,10 +1,30 @@
+from enum import Enum
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Dict
 
 from src.schemas.user import UserResponse
 
 
-class ViewRatingModel(BaseModel):
+class PhotoRating(str, Enum):
+    one_star = 'Very bad'
+    two_stars = 'Bad'
+    three_stars = 'Average'
+    four_stars = 'Good'
+    five_stars = 'Excellent'
+
+
+class ViewPhotoRating(BaseModel):
+    id: int
+    user_id: int
+    photo_id: int
+    rating: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ViewRatingModel(BaseModel) :
     one_star: bool
     two_stars: bool
     three_stars: bool
@@ -12,16 +32,16 @@ class ViewRatingModel(BaseModel):
     five_stars: bool
 
 
-class RatingModel(BaseModel):
+class RatingModel(BaseModel) :
     rating: ViewRatingModel
     user_id: int = Field(1, gt=0)
     image_id: int = Field(1, gt=0)
 
 
-class RatingResponse(BaseModel):
+class RatingResponse(BaseModel) :
     id: int = 1
-    rating: dict = {"one_star": False, "two_stars": False, "three_stars": False, "four_stars": False,
-                    "five_stars": False}
+    rating: dict = {"one_star" : False, "two_stars" : False, "three_stars" : False, "four_stars" : False,
+                    "five_stars" : False}
     user: UserResponse
 
     model_config = ConfigDict(from_attributes=True)
