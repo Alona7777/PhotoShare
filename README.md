@@ -95,7 +95,7 @@ Here, you can test and explore all available API endpoints for managing photos.
 
 - **Team: "Team-1"** 
 
-- Team Lead: Aliona Bogoliepova,
+- Team Lead: Alona Boholiepova,
 
 - Scrum: Igor Rys,
 
