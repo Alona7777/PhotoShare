@@ -1,94 +1,115 @@
 
 # 📸 PhotoShare
 
-**PhotoShare** — це сучасний застосунок для роботи з фотографіями, створений на основі **FastAPI** та **Python**.
-   Він дозволяє користувачам завантажувати, переглядати, редагувати та ділитися фото у зручний і швидкий спосіб.
-   Ідеальне рішення для персонального використання або обміну фотографіями у спільнотах.
+**PhotoShare** is a modern photo-sharing application built with **FastAPI** and **Python**.
+It allows users to upload, view, edit, and share photos in a quick and convenient way.
+Perfect for personal use or sharing photos within communities.
 
-## 🛠 Функціонал
+## 🛠 Features
 
-- 📤 **Завантаження фотографій**: швидке та зручне додавання фото.
-- 🖼 **Перегляд галереї**: можливість переглядати фото в зручному інтерфейсі.
-- ✂️ **Редагування фотографій**: обрізка, зміна розміру, додавання фільтрів.
-- 🔗 **Обмін фотографіями**: генеруйте посилання для швидкого доступу до фото.
-- 👥 **Підтримка декількох користувачів**: кожен користувач має свій акаунт та персональну галерею.
+- 📤 **Upload Photos**: Quick and easy photo uploading.
+- 🖼 **View Gallery**: Browse your photos in a user-friendly gallery interface.
+- ✂️ **Edit Photos**: Crop, resize, and apply filters to your photos.
+- 🔗 **Share Photos**: Generate links to quickly share your photos with others.
+- 👥 **Multi-user Support**: Each user has their own account and personal gallery.
 
-## 🚀 Встановлення та запуск
+## 🚀 Installation and Running
 
-1. Клонуйте репозиторій:
+1. Clone the repository:
 
     ```bash
     git clone https://github.com/Alona7777/PhotoShare.git
     ```
 
-2. Перейдіть у директорію проєкту:
+2. Navigate to the project directory:
 
     ```bash
     cd PhotoShare
     ```
 
-3. Встановіть необхідні залежності:
+3. Install the required dependencies:
+    - Using requirements.txt
+
+        ```bash
+        pip install -r requirements.txt
+        ```
+    - Using Poetry:
+
+        ```bash
+        poetry install
+        ```
+        
+        ```bash
+        poetry shell
+        ```
+
+4. To run Redis and PostgreSQL using the provided docker-compose.yml file, execute the following command in your terminal:
 
     ```bash
-    pip install -r requirements.txt
+    docker-compose up
     ```
 
-4. Запустіть FastAPI сервер:
+5. Run the FastAPI server:
 
     ```bash
-    uvicorn app:app --reload
+    uvicorn main:app --reload
     ```
 
-5. Відкрийте браузер і перейдіть за адресою:
+6. Open your browser and go to:
 
     ```
     http://127.0.0.1:8000
     ```
 
-## 🎨 Інтерфейс користувача
+## 🎨 User Interface
 
-![Скріншот галереї PhotoShare](https://via.placeholder.com/800x400.png?text=Gallery+Screenshot)
+![PhotoShare Gallery Screenshot](https://via.placeholder.com/800x400.png?text=Gallery+Screenshot)
 
-*Приклад перегляду фотографій у PhotoShare*
+*Example of viewing photos in PhotoShare*
 
-## 🖥 Технології
+## 🖥 Technologies
 
-- **Python** — основна мова програмування застосунку
-- **FastAPI** — потужний фреймворк для створення веб-застосунків
-- **Jinja2** — для шаблонізації HTML сторінок
-- **PostgreSQL** — легка база даних для зберігання користувацьких даних та фотографій
-- **HTML/CSS/JavaScript** — для фронтенд частини застосунку
+- **Python** — the main programming language of the application
+- **FastAPI** — a powerful framework for building web applications
+- **Jinja2** — used for HTML templating
+- **SQLite** — lightweight database to store user data and photos
+- **HTML/CSS/JavaScript** — for the frontend part of the application
 
-## 📋 API документація
+## 📋 API Documentation
 
-FastAPI автоматично генерує інтерактивну документацію API, яку можна переглянути за адресою:
+FastAPI automatically generates interactive API documentation, available at:
 
 ```
 http://127.0.0.1:8000/docs
 ```
 
-Там ви зможете тестувати та переглядати всі доступні API-ендпоінти для роботи з фото.
+Here, you can test and explore all available API endpoints for managing photos.
 
-## 📦 Вимоги
+## 📦 Requirements
 
-- **Python** 3.8 або новіший
-- **FastAPI** та інші залежності, зазначені у файлі `requirements.txt`
-- **Uvicorn** для запуску серверу
+- **Python** 3.8 or higher
+- **FastAPI** and other dependencies specified in `requirements.txt`
+- **Uvicorn** to run the server
 
-## 👩‍💻 Автори
+## 👩‍💻 Author
 
-- **Команда: "Team-1"** 
-                   Team Lead: Альона Боголєпова,
-                   Scrum: Ігор Рись,
-                   Developers: Артем Набока,
-                               Володимир Пругло,
-                               Олена Маляренко.
+- **Team: "Team-1"** 
 
+- Team Lead: Alona Boholiepova,
 
-## 📜 Ліцензія
+- Scrum: Igor Rys,
 
-Цей проєкт ліцензований відповідно до [MIT License](LICENSE).
+- Developers: Artem Naboka,
 
-## 📧 Контакти
+             Volodymyr Pruhlo,
 
-Якщо у вас виникли питання або пропозиції щодо покращення проєкту, не соромтесь зв'язатися зі мною через GitHub.
+             Olena Malyarenko.
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## 📧 Contact
+
+If you have any questions or suggestions for improving the project, feel free to contact me via GitHub.
+
