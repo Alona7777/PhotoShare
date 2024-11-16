@@ -16,8 +16,8 @@ from src.entity.models import Photo, Comment, Rating, Friendship, User
 from src.repository import users as repository_users
 from src.schemas import user as schemas_user
 from src.conf.config import config
-from src.conf import messages
-from src.conf.messages import AuthMessages as auth_massages
+from src.conf import massages
+from src.conf.massages import AuthMessages as auth_massages
 
 
 class Auth:
@@ -251,7 +251,7 @@ class Auth:
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=messages.NOT_USER,
+                detail=massages.NOT_USER,
             )
         photos_count = await db.execute(
             select(func.count(Photo.id)).where(Photo.user_id == user.id)

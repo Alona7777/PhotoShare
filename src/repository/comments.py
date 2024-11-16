@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.entity.models import Comment, User
-from src.conf import messages
+from src.conf import massages
 from src.schemas.photo import SortDirection
 from src.database.db import get_db
 
@@ -69,7 +69,7 @@ async def get_comment_by_id(
     select_comment = await db.execute(filter_comment)
     get_comment = select_comment.scalar_one_or_none()
     if get_comment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_COMMENT)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_COMMENT)
     return get_comment
 
 
@@ -93,7 +93,7 @@ async def update_comment(
     select_comment = await db.execute(filter_comment)
     get_comment = select_comment.scalar_one_or_none()
     if get_comment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_COMMENT)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_COMMENT)
     get_comment.content = comment_text
     await db.commit()
     await db.refresh(get_comment)
@@ -116,7 +116,7 @@ async def delete_comment(
     select_comment = await db.execute(filter_comment)
     get_comment = select_comment.scalar_one_or_none()
     if get_comment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_COMMENT)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_COMMENT)
     await db.delete(get_comment)
     await db.commit()
     return get_comment

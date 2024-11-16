@@ -2,7 +2,7 @@ from fastapi import Request, Depends, HTTPException, status
 
 from src.entity.models import Role, User
 from src.services.auth import auth_service
-from src.conf.messages import RolesMessages as role_massages
+from src.conf.massages import RolesMessages as role_massages
 
 
 class RoleAccess:

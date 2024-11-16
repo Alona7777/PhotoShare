@@ -10,7 +10,7 @@ from libgravatar import Gravatar
 from typing import List
 
 from src.conf.config import config
-from src.conf import messages
+from src.conf import massages
 from src.database.db import get_db
 from src.entity.models import User, Photo, PhotoTag, Tag, Comment, Rating
 from src.schemas.photo import PhotoTagResponse, ViewAllPhotos, SortDirection, UserRatingContents
@@ -41,7 +41,7 @@ async def get_photo_by_id(
     photo = photos.scalar_one_or_none()
     if not photo:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_PHOTO
+            status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_PHOTO
         )
     return photo
 
@@ -120,7 +120,7 @@ async def update_photo_description(
     photo = photos.scalar_one_or_none()
     if not photo:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_PHOTO
+            status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_PHOTO
         )
     photo.description = description
     await db.commit()
@@ -144,7 +144,7 @@ async def remove_photo(
     photo = photos.scalar_one_or_none()
     if not photo:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_PHOTO
+            status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_PHOTO
         )
     await db.delete(photo)
     await db.commit()

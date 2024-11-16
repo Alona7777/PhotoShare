@@ -9,7 +9,7 @@ from src.schemas.user import BanUser
 from src.schemas.photo import PhotoResponse
 from src.services.auth import auth_service
 from src.services.roles import RoleAccess
-from src.conf import messages
+from src.conf import massages
 from src.repository import admin as repositories_admin
 from src.repository import users as repositories_users
 from src.repository import photos as repositories_photos
@@ -179,7 +179,7 @@ async def create_ban_for_user(
     user = await repositories_users.get_user_by_id(user_id=user_id, db=db)
     if user.id == user_admin.id:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail=messages.CONFLICT_ROLE
+            status_code=status.HTTP_409_CONFLICT, detail=massages.CONFLICT_ROLE
         )
     ban_user = await repositories_admin.create_ban_by_user_id(user_id=user_id, db=db)
     return ban_user
