@@ -7,7 +7,7 @@ from src.database.db import get_db
 from src.entity.models import Role
 from src.schemas.tag import TagModel, TagResponse
 from src.repository import tags as repository_tags
-from src.conf.messages import AuthMessages
+from src.conf.massages import AuthMessages
 from src.services.roles import RoleAccess
 
 

@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
 from src.entity.models import User
-from src.conf.messages import AuthMessages as auth_massages
+from src.conf.massages import AuthMessages as auth_massages
 from src.repository import users as repositories_users
 from src.repository import admin as repositories_admin
 from src.services.email import (

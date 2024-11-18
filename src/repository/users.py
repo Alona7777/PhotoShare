@@ -7,7 +7,7 @@ from typing import List
 from src.database.db import get_db
 from src.entity.models import User, BanUser
 from src.schemas.user import UserSchema
-from src.conf import messages
+from src.conf import massages
 
 
 async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
@@ -39,7 +39,7 @@ If no such user exists, it raises an HTTPException with status code 404 and deta
     user = await db.execute(filter_user)
     user = user.scalar_one_or_none()
     if user is None:
-        raise HTTPException(status_code=404, detail=messages.NOT_USER)
+        raise HTTPException(status_code=404, detail=massages.NOT_USER)
     return user
 
 

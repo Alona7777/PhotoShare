@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.schemas.tag import TagModel
 
 from src.database.db import get_db
-from src.conf import messages
+from src.conf import massages
 
 
 async def get_tags(skip: int, limit: int, db: AsyncSession) -> Sequence[Tag]:
@@ -41,7 +41,7 @@ async def get_tag(tag_id: int, db: AsyncSession) -> Optional[Tag]:
     tag = result.scalars().first()
     if tag is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_TAG
+            status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_TAG
         )
     return tag
 
@@ -84,7 +84,7 @@ async def update_tag(tag_id: int, body: TagModel, db: AsyncSession) -> Optional[
     if tag is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=messages.NOT_TAG_OR_RULES,
+            detail=massages.NOT_TAG_OR_RULES,
         )
     tag.name = body.name
     await db.commit()
@@ -107,7 +107,7 @@ async def remove_tag(tag_id: int, db: AsyncSession) -> Optional[Tag]:
     if tag is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=messages.NOT_TAG_OR_RULES,
+            detail=massages.NOT_TAG_OR_RULES,
         )
     await db.delete(tag)
     await db.commit()
@@ -134,7 +134,7 @@ async def get_tag_name(tag_id: int, db: AsyncSession) -> str:
     tag = result.scalars().first()
     if tag is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=messages.NOT_TAG
+            status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_TAG
         )
     return tag
 
