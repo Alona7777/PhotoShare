@@ -39,7 +39,7 @@ async def send_email(email: EmailStr, username: str, host: str):
     try:
         token_verification = auth_service.create_email_token({"sub": email})
         message = MessageSchema(
-            subject="Verify your email !",
+            subject="Verify your email!",
             recipients=[email],
             template_body={
                 "host": host,
@@ -64,10 +64,11 @@ async def send_email_reset_password(email: EmailStr, username: str, host: str):
     :param host: str: Create the link to reset password
     :return: A token
     """
+    
     try:
         token_reset_password = auth_service.create_email_token({"sub": email})
         message = MessageSchema(
-            subject="Reset password !",
+            subject="Reset password!",
             recipients=[email],
             template_body={
                 "host": host,
@@ -98,7 +99,7 @@ async def send_message_password(email: EmailStr, username: str, host: str):
     """
     try:
         message = MessageSchema(
-            subject="Reset the password successfully !",
+            subject="Reset the password successfully!",
             recipients=[email],
             template_body={"host": host, "username": username},
             subtype=MessageType.html,
@@ -127,7 +128,7 @@ async def send_random_password(
     """
     try:
         message = MessageSchema(
-            subject="New password successfully !",
+            subject="New password successfully!",
             recipients=[email],
             template_body={"host": host, "username": username, "password": password},
             subtype=MessageType.html,
