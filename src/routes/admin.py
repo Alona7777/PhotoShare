@@ -40,6 +40,8 @@ async def get_photos(
     :return: A list of dictionaries
     """
     user = await repositories_users.get_user_by_id(user_id, db)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_USER)
     photos = await repositories_photos.get_photos(
         user=user, skip=skip, limit=limit, db=db
     )
@@ -82,6 +84,8 @@ async def create_photo(
     :return: A photo object
     """
     user = await repositories_users.get_user_by_id(user_id, db)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=massages.NOT_USER)
     photo = await repositories_photos.create_photo(
         user=user, title=title, description=description, db=db, file=file
     )
