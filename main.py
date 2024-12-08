@@ -1,3 +1,4 @@
+import os
 import pathlib
 
 import redis.asyncio as redis
@@ -10,6 +11,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
+from jose import jwt
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.staticfiles import StaticFiles
@@ -21,8 +23,16 @@ from src.utils.py_logger import get_logger
 
 from fastapi.templating import Jinja2Templates
 
+from fastapi.security import OAuth2PasswordBearer
+
+from fastapi.staticfiles import StaticFiles
+
+from dotenv import load_dotenv
 logger = get_logger(__name__)
 
+load_dotenv()
+
+SECRET_KEY_JWT = os.getenv('SECRET_KEY_JWT')
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -110,6 +120,17 @@ templates = Jinja2Templates(directory='templates')
 BASE_DIR = pathlib.Path(__file__).parent
 
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+
+@app.get("/protected-resource")
+async def protected_resource(token: str = Depends(oauth2_scheme)):
+    payload = jwt.decode(token, SECRET_KEY_JWT, algorithms=["HS256"])
+    email = payload.get("sub")
+    if not email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return {"message": f"Access granted to {email}"}
 
 
 @app.get('/', response_class=HTMLResponse, description='main page')
