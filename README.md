@@ -72,7 +72,7 @@ Perfect for personal use or sharing photos within communities.
 - **Python** — the main programming language of the application
 - **FastAPI** — a powerful framework for building web applications
 - **Jinja2** — used for HTML templating
-- **SQLite** — lightweight database to store user data and photos
+- **PostgreSQL** — database to store user data and photos
 - **HTML/CSS/JavaScript** — for the frontend part of the application
 
 ## 📋 API Documentation
