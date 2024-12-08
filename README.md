@@ -46,7 +46,7 @@ Perfect for personal use or sharing photos within communities.
 4. To run Redis and PostgreSQL using the provided docker-compose.yml file, execute the following command in your terminal:
 
     ```bash
-    docker-compose up
+    docker-compose up -d
     ```
 
 5. Run the FastAPI server:

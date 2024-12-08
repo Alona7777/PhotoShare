@@ -3,9 +3,15 @@ import pytest
 import pytest_asyncio
 
 from httpx import AsyncClient, ASGITransport
+
+from unittest.mock import AsyncMock, patch
+
+
 from main import app
 
 from fastapi.testclient import TestClient
+from fastapi_limiter import FastAPILimiter
+
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
@@ -98,3 +104,15 @@ async def new_user_with_photos(init_test_users):
 async def get_token(admin_user):
     token = await auth_service.create_access_token(data={"sub": admin_user.email})
     return token
+
+async def get_token():
+    token = await auth_service.create_access_token(data={"sub": test_user["email"]})
+    return token
+
+
+@pytest.fixture(scope="function", autouse=True)
+async def mock_limiter():
+    redis_mock = AsyncMock()
+    with patch.object(FastAPILimiter, "redis", redis_mock):
+        with patch.object(FastAPILimiter, "identifier", AsyncMock(return_value="test_identifier")):
+            yield

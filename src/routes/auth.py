@@ -66,7 +66,7 @@ async def signup(
     :return: The new user
     """
     exist_user = await repositories_users.get_user_by_email(body.email, db)
-    if exist_user:
+    if exist_user != None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail=auth_massages.ACCOUNT_EXISTS
         )
@@ -198,14 +198,19 @@ async def request_email(
     """
     user = await repositories_users.get_user_by_email(body.email, db)
 
-    if user.verified:
-        return {"message": "Your email is already confirmed!"}
-    if user:
-        background_tasks.add_task(
-            send_email, user.email, user.username, str(request.base_url)
-        )
-    return {"message": "Check your email for confirmation."}
+    if user is None:
+        return {"message": "User not found."}
 
+    else:
+        if user.verified:
+            return {"message": "Your email is already confirmed!"}
+
+        if user:
+            background_tasks.add_task(
+                send_email, user.email, user.username, str(request.base_url)
+            )
+            return {"message": "Check your email for confirmation."}
+        
 
 @router.post("/send_reset_password")
 async def send_reset_password(
@@ -227,12 +232,13 @@ async def send_reset_password(
     :return: A message to the user
     """
     user = await repositories_users.get_user_by_email(body.email, db)
-    print(user)
-    if user:
+    if user != None:
         background_tasks.add_task(
             send_email_reset_password, user.email, user.username, str(request.base_url)
         )
-    return {"message": "Check your email for confirmation."}
+        return {"message": "Check your email for confirmation."}
+    
+    return {"message": "User not found."}
 
 
 @router.post(
@@ -262,27 +268,25 @@ async def reset_password(
     :param : Send the email to the user
     :return: The user object
     """
-    if body.password1 is body.password2:
+    if body.password1 != body.password2:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=auth_massages.NOT_MATCH_PASSWORD
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=auth_massages.NOT_MATCH_PASSWORD
         )
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repositories_users.get_user_by_email(email, db)
-    if user:
-        password = auth_service.get_password_hash(body.password1)
-        new_user = await repositories_users.update_user_password(email, password, db)
-        user = await repositories_users.get_user_by_email(user.email, db)
-        background_tasks.add_task(
-            send_message_password, user.email, user.username, str(request.base_url)
-        )
-        return user
-    else:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=auth_massages.INVALID_REGISTRATION,
         )
-
+    password = auth_service.get_password_hash(body.password1)
+    user = await repositories_users.update_user_password(email, password, db)
+    background_tasks.add_task(
+        send_message_password, user.email, user.username, str(request.base_url)
+    )
+    return user
 
 @router.get(
     "/reset_password/{token}",
@@ -314,12 +318,17 @@ async def reset_password(
     characters = string.ascii_letters + string.digits + string.punctuation
     password1 = "".join(random.choice(characters) for i in range(8))
     password = auth_service.get_password_hash(password1)
-    new_user = await repositories_users.update_user_password(email, password, db)
-    bt.add_task(
-        send_random_password,
-        user.email,
-        user.username,
-        str(request.base_url),
-        password1,
-    )
+    user = await repositories_users.update_user_password(email, password, db)
+    try:
+        bt.add_task(
+            send_random_password,
+            user.email,
+            user.username,
+            str(request.base_url),
+            password1,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to send password email: {str(e)}",
+        )
     return {"message": "New password sent by email!"}
