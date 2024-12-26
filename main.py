@@ -4,18 +4,21 @@ import pathlib
 import redis.asyncio as redis
 import re
 from ipaddress import ip_address
-from typing import Callable
+from typing import Callable, List
 import uvicorn
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException, Request, status
+from fastapi import FastAPI, Depends, HTTPException, Request, status, Query
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi_limiter import FastAPILimiter
 from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt
-from sqlalchemy import text
+from sqlalchemy import text, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import expression
 from starlette.staticfiles import StaticFiles
 from src.database.db import get_db
+from src.entity.models import Photo
 from src.routes import auth, users, photos, transformation, comments, rating, tags, admin
 
 from src.conf.config import config
@@ -28,11 +31,13 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.staticfiles import StaticFiles
 
 from dotenv import load_dotenv
+
 logger = get_logger(__name__)
 
 load_dotenv()
 
 SECRET_KEY_JWT = os.getenv('SECRET_KEY_JWT')
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -69,51 +74,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ALLOWED_IPS = [ip_address("127.0.0.1"), ]
+# ALLOWED_IPS = [ip_address("127.0.0.1", 'localhost:8000'), ]
+#
+#
+# @app.middleware("http")
+# async def limit_access_by_ip(request: Request, call_next: Callable):
+#
+#     ip = ip_address(request.client.host)
+#     if ip not in ALLOWED_IPS:
+#         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "Not allowed IP address"})
+#     response = await call_next(request)
+#     return response
+#
+#
+# user_agent_ban_list = [r"Googlebot", r"Python-urllib", r"bot-Yandex"]
 
 
-@app.middleware("http")
-async def limit_access_by_ip(request: Request, call_next: Callable):
-    """
-    The limit_access_by_ip function is a middleware function that limits access to the API by IP address.
-    It checks if the client's IP address is in ALLOWED_IPS, and if not, returns a 403 Forbidden response.
-
-    :param request: Request: Access the request object
-    :param call_next: Callable: Pass the next function in the chain
-    :return: A jsonresponse object with a status code of 403 and a message
-    """
-    ip = ip_address(request.client.host)
-    if ip not in ALLOWED_IPS:
-        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "Not allowed IP address"})
-    response = await call_next(request)
-    return response
-
-
-user_agent_ban_list = [r"Googlebot", r"Python-urllib", r"bot-Yandex"]
-
-
-@app.middleware("http")
-async def user_agent_ban_middleware(request: Request, call_next: Callable):
-    """
-    The user_agent_ban_middleware function is a middleware function that checks the user-agent header of an incoming
-    request. If the user-agent matches any of the patterns in our ban list, then we return a 403 Forbidden response.
-    Otherwise, we call the next middleware function and return its response.
-
-    :param request: Request: Access the request object
-    :param call_next: Callable: Pass the request to the next middleware in line
-    :return: A jsonresponse object that contains a status code of 403 and a detail message
-    """
-    print(request.headers.get("Authorization"))
-    user_agent = request.headers.get("user-agent")
-    print(user_agent)
-    for ban_pattern in user_agent_ban_list:
-        if re.search(ban_pattern, user_agent):
-            return JSONResponse(
-                status_code=status.HTTP_403_FORBIDDEN,
-                content={"detail": "You are banned"},
-            )
-    response = await call_next(request)
-    return response
+# @app.middleware("http")
+# async def user_agent_ban_middleware(request: Request, call_next: Callable):
+#
+#     print(request.headers.get("Authorization"))
+#     user_agent = request.headers.get("user-agent")
+#     print(user_agent)
+#     for ban_pattern in user_agent_ban_list:
+#         if re.search(ban_pattern, user_agent):
+#             return JSONResponse(
+#                 status_code=status.HTTP_403_FORBIDDEN,
+#                 content={"detail": "You are banned"},
+#             )
+#     response = await call_next(request)
+#     return response
 
 
 templates = Jinja2Templates(directory='templates')
@@ -135,17 +125,36 @@ async def protected_resource(token: str = Depends(oauth2_scheme)):
 
 @app.get('/', response_class=HTMLResponse, description='main page')
 async def root(request: Request):
-    """
-The root function is the entry point for the application.
-It returns a TemplateResponse object, which renders an HTML template using Jinja2.
-The template is located in templates/index.html and uses data from the request object to render itself.
-
-:param request: Request: Get the request object
-:return: The index
-:doc-author: Trelent
-"""
     return templates.TemplateResponse("index.html", {"request": request, 'title': 'PhotoShare App'})
 
+
+@app.get('/auth')
+async def auth_page(request: Request):
+    return templates.TemplateResponse("auth.html", {"request": request})
+
+
+@app.get('/signup')
+async def signup_page(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+
+@app.get('/upload')
+async def upload_page(request: Request):
+    return templates.TemplateResponse("upload.html", {"request": request})
+
+
+@app.get("/api/photos/all", response_model=List[dict])
+async def get_all_photos(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1),
+    db: AsyncSession = Depends(get_db),
+    current_user: str = Depends(oauth2_scheme)
+):
+
+    expression = select(Photo).offset(skip).limit(limit)
+    result = await db.execute(expression)
+    photos = result.scalars().all()
+    return [{"id": photo.id, "title": photo.title, "description": photo.description, "file_path": photo.file_path} for photo in photos]
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
@@ -159,14 +168,6 @@ app.include_router(rating.router, prefix='/api')
 
 @app.get("/api/healthchecker")
 async def healthchecker(db: AsyncSession = Depends(get_db)):
-    """
-    The healthchecker function is used to check the health of the database.
-    It does this by making a simple query to the database and checking if it returns any results.
-    If no results are returned, then we know that there is an issue with our connection.
-
-    :param db: AsyncSession: Inject the database session into the function
-    :return: A dictionary with a message
-    """
     try:
         result = await db.execute(text("SELECT 1"))
         result = result.fetchone()

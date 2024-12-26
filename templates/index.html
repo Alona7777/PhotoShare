@@ -3,75 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo App</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <title>Photo App - Home</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <header>
-        <h1>Photo Application</h1>
-        <nav>
-            <ul>
-                <li><a href="#" id="upload-link">Upload Photo</a></li>
-                <li><a href="#" id="view-link">View Photos</a></li>
-                <li><a href="#" id="logout-link">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-<div id="login-form">
-    <form id="auth-form">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+    <h1>You PhotoShare application</h1>
+    <nav>
+        <a href="/auth" id="login-link">Login</a>
+        <a href="/signup" id="signup-link">Sign Up</a>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+    </nav>
+</header>
 
-        <button type="submit">Log In</button>
-    </form>
-</div>
-<div id="user-info" style="display:none;">
-    <h3>Welcome, <span id="username-display"></span>!</h3>
-    <button id="logout-button">Log Out</button>
-</div>
-<div id="signup-form" style="display:none">
-    <form id="register-form">
-        <label for="register-username">Username:</label>
-        <input type="text" id="register-username" name="username" required>
 
-        <label for="register-email">Email:</label>
-        <input type="email" id="register-email" name="email" required>
-
-        <label for="register-password">Password:</label>
-        <input type="password" id="register-password" name="password" required>
-
-        <label for="register-confirm-password">Confirm Password:</label>
-        <input type="password" id="register-confirm-password" name="confirm-password" required>
-
-        <button type="submit">Sign Up</button>
-    </form>
-</div>
-<div>
-    <button id="show-register-form">Don't have an account? Sign Up</button>
-    <button id="show-login-form" style="display:none;">Already have an account? Log In</button>
-</div>
     <main>
-        <div id="content">
+        <h2>Welcome to Photo App</h2>
+        <div id="photo-gallery" class="gallery">
 
         </div>
-     <footer>
-        <p>Copyright &copy; 2024(GoIt) "Team-1". All Rights Reserved.</p>
-        <p>Follow us on:
-            <a href="https://instagram.com" target="_blank">Instagram</a>|
-            <a href="https://facebook.com" target="_blank">Facebook</a>|
-            <a href="https://twitter.com" target="_blank">Twitter</a>|
-            <a href="https://LinkedIn.com" target="_blank">LinkedIn</a>
-        </p>
-        <p>
-            <a href="https://www.iubenda.com/privacy-policy/63375980" class="text-white">Privacy Policy</a> |
-            <a href="/terms-of-service" class="text-white">Terms of Service</a>
-        </p>
-    </footer>
+        <div id="pagination-controls" class="pagination">
+            <button id="prev-page" disabled>Previous</button>
+            <button id="next-page">Next</button>
+        </div>
+        <div id="upload-button">
+            <a href="/upload" class="btn-primary">Upload Photo</a>
+        </div>
+        <div>
+            <footer class="footer">
+                <p>Copyright &copy; 2024(GoIt) "Team-1". All Rights Reserved.</p>
+                <p>Follow us on:
+                    <a href="https://instagram.com" target="_blank">Instagram</a>|
+                    <a href="https://facebook.com" target="_blank">Facebook</a>|
+                    <a href="https://twitter.com" target="_blank">Twitter</a>|
+                    <a href="https://LinkedIn.com" target="_blank">LinkedIn</a>
+                </p>
+                <p>
+                    <a href="https://www.iubenda.com/privacy-policy/63375980" class="text-white">Privacy Policy</a> |
+                    <a href="/terms-of-service" class="text-white">Terms of Service</a>
+                </p>
+            </footer>
+        </div>
     </main>
-
-    <script src="../static/js/script.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => loadPhotos(0, 10));
+    </script>
 </body>
 </html>
